@@ -1,0 +1,2577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>小镇物语 · Little Town</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden;background:#243b4a;
+    font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    user-select:none}
+  #game{display:block;position:fixed;inset:0;touch-action:none;cursor:pointer}
+
+  /* ---------- 顶部资源栏 ---------- */
+  #hud{
+    position:fixed;left:50%;top:12px;transform:translateX(-50%);
+    display:flex;gap:6px;padding:7px 10px;border-radius:14px;
+    background:rgba(20,32,42,.82);backdrop-filter:blur(14px);
+    border:1px solid rgba(150,210,235,.16);
+    box-shadow:0 8px 28px rgba(0,0,0,.4);
+    z-index:10;white-space:nowrap;
+  }
+  .res{display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:9px;
+    background:rgba(255,255,255,.05);font-size:14px;color:#dff0fa;font-weight:600;
+    font-variant-numeric:tabular-nums;transition:transform .15s,background .15s}
+  .res .ic{font-size:15px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
+  .res.bump{transform:scale(1.14);background:rgba(255,215,94,.16)}
+
+  /* ---------- 底部提示 ---------- */
+  #tip{
+    position:fixed;left:50%;bottom:14px;transform:translateX(-50%);
+    padding:9px 20px;border-radius:11px;font-size:12.5px;color:rgba(200,225,240,.72);
+    background:rgba(20,32,42,.8);backdrop-filter:blur(10px);
+    border:1px solid rgba(150,210,235,.12);z-index:10;
+    text-align:center;max-width:min(88vw,520px);line-height:1.55;
+    transition:opacity .4s;
+  }
+  #tip b{color:#7de3c4;font-weight:600}
+
+  /* ---------- 右侧按钮 ---------- */
+  #sideBtns{
+    position:fixed;right:12px;bottom:78px;display:flex;flex-direction:column;gap:7px;z-index:20;
+  }
+  .tbtn{
+    width:44px;height:44px;border-radius:13px;cursor:pointer;font-size:19px;
+    border:1px solid rgba(150,210,235,.16);
+    background:rgba(20,32,42,.86);backdrop-filter:blur(14px);
+    color:#dff0fa;transition:.15s;position:relative;
+    box-shadow:0 6px 20px rgba(0,0,0,.35);
+  }
+  .tbtn:hover{background:rgba(38,58,74,.95);border-color:rgba(150,210,235,.4);transform:translateY(-1px)}
+  .tbtn:active{transform:scale(.94)}
+  .tbtn .dot{
+    position:absolute;top:-4px;right:-4px;min-width:17px;height:17px;border-radius:9px;
+    background:#e85a7a;color:#fff;font-size:10px;font-weight:700;line-height:17px;
+    text-align:center;padding:0 4px;box-shadow:0 2px 6px rgba(0,0,0,.4);
+    display:none;
+  }
+  .tbtn .dot.show{display:block}
+
+  /* ---------- 建造菜单 ---------- */
+  #buildMenu{
+    position:fixed;z-index:30;width:268px;padding:10px;
+    border-radius:15px;background:rgba(18,29,38,.95);backdrop-filter:blur(18px);
+    border:1px solid rgba(150,210,235,.2);
+    box-shadow:0 18px 50px rgba(0,0,0,.55);
+    opacity:0;pointer-events:none;transform:scale(.94) translateY(6px);
+    transform-origin:center;transition:opacity .16s,transform .16s;
+  }
+  #buildMenu.show{opacity:1;pointer-events:auto;transform:scale(1) translateY(0)}
+  #buildMenu .bm-head{display:flex;justify-content:space-between;align-items:center;
+    padding:2px 6px 9px;font-size:12px;color:rgba(180,210,228,.65);letter-spacing:.05em}
+  #buildMenu .bm-close{cursor:pointer;font-size:16px;color:rgba(180,210,228,.6);
+    padding:0 4px;line-height:1;transition:color .15s}
+  #buildMenu .bm-close:hover{color:#ff8a8a}
+  .bcard{
+    display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:10px;
+    cursor:pointer;transition:background .13s,transform .1s;
+    border:1px solid transparent;
+  }
+  .bcard:hover{background:rgba(255,255,255,.06);border-color:rgba(150,210,235,.18)}
+  .bcard:active{transform:scale(.97)}
+  .bcard.locked{opacity:.42;cursor:not-allowed}
+  .bcard.locked:hover{background:rgba(255,80,80,.06);border-color:rgba(255,120,120,.2)}
+  .bcard .bic{font-size:22px;width:32px;text-align:center;
+    filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))}
+  .bcard .binfo{flex:1;min-width:0}
+  .bcard .bname{font-size:13.5px;color:#e6f3fb;font-weight:600}
+  .bcard .bdesc{font-size:11px;color:rgba(160,195,215,.65);margin-top:1px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bcard .bcost{font-size:11.5px;color:#ffd75e;font-weight:600;
+    text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .bcard .bcost .no{color:#ff7d7d}
+
+  /* ---------- 管理面板 ---------- */
+  #managePanel{
+    position:fixed;right:0;top:0;bottom:0;width:352px;max-width:90vw;
+    background:rgba(15,24,32,.97);backdrop-filter:blur(22px);
+    border-left:1px solid rgba(150,210,235,.16);
+    box-shadow:-16px 0 48px rgba(0,0,0,.55);
+    transform:translateX(102%);transition:transform .3s cubic-bezier(.22,1,.36,1);
+    z-index:40;display:flex;flex-direction:column;
+    pointer-events:none;
+  }
+  #managePanel.show{transform:translateX(0);pointer-events:auto}
+  .mp-head{display:flex;align-items:center;justify-content:space-between;
+    padding:16px 18px 12px;font-size:15px;font-weight:700;color:#e6f3fb;
+    border-bottom:1px solid rgba(150,210,235,.1)}
+  .mp-head .mp-close{cursor:pointer;font-size:17px;color:rgba(180,210,228,.6);
+    padding:2px 6px;border-radius:7px;transition:.15s}
+  .mp-head .mp-close:hover{color:#ff8a8a;background:rgba(255,120,120,.1)}
+  .mp-tabs{display:flex;gap:4px;padding:10px 14px 4px}
+  .mp-tabs button{
+    flex:1;font:inherit;font-size:12.5px;padding:8px 4px;border-radius:9px;cursor:pointer;
+    background:transparent;border:1px solid transparent;color:rgba(170,200,220,.7);
+    transition:.15s;
+  }
+  .mp-tabs button:hover{background:rgba(255,255,255,.05);color:#dff0fa}
+  .mp-tabs button.active{background:rgba(125,227,196,.14);border-color:rgba(125,227,196,.4);color:#7de3c4;font-weight:600}
+  #mpBody{flex:1;overflow-y:auto;padding:12px 14px 22px;scrollbar-width:thin}
+  #mpBody::-webkit-scrollbar{width:6px}
+  #mpBody::-webkit-scrollbar-thumb{background:rgba(150,210,235,.2);border-radius:3px}
+
+  .mp-sec-title{font-size:11px;letter-spacing:.08em;color:rgba(160,195,215,.55);
+    margin:14px 0 8px;font-weight:600}
+  .mp-sec-title:first-child{margin-top:0}
+
+  .mp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .mp-stat{
+    padding:11px 12px;border-radius:11px;background:rgba(255,255,255,.04);
+    border:1px solid rgba(150,210,235,.08);
+  }
+  .mp-stat .sv{font-size:19px;font-weight:700;color:#7de3c4;font-variant-numeric:tabular-nums;line-height:1.15}
+  .mp-stat .sl{font-size:11px;color:rgba(160,195,215,.65);margin-top:3px}
+
+  .mp-btn{
+    width:100%;font:inherit;font-size:13px;font-weight:600;padding:11px;border-radius:10px;
+    cursor:pointer;margin-top:8px;
+    background:rgba(125,227,196,.15);border:1px solid rgba(125,227,196,.4);color:#7de3c4;
+    transition:.15s;
+  }
+  .mp-btn:hover{background:rgba(125,227,196,.25)}
+  .mp-btn:active{transform:scale(.985)}
+  .mp-btn.warm{background:rgba(255,215,94,.12);border-color:rgba(255,215,94,.35);color:#ffd75e}
+  .mp-btn.warm:hover{background:rgba(255,215,94,.22)}
+
+  .mp-row{
+    display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:10px;
+    background:rgba(255,255,255,.035);border:1px solid rgba(150,210,235,.07);
+    margin-bottom:7px;transition:.13s;
+  }
+  .mp-row:hover{background:rgba(255,255,255,.06)}
+  .mp-row .mi{font-size:19px;width:26px;text-align:center;flex-shrink:0}
+  .mp-row .minfo{flex:1;min-width:0}
+  .mp-row .mn{font-size:12.5px;color:#e0eefa;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mp-row .ms{font-size:11px;color:rgba(160,195,215,.6);margin-top:1px}
+  .mp-row .ms.full{color:#ffd75e}
+  .mp-mini{
+    font:inherit;font-size:11px;padding:6px 11px;border-radius:8px;cursor:pointer;flex-shrink:0;
+    background:rgba(125,227,196,.14);border:1px solid rgba(125,227,196,.35);color:#7de3c4;
+    transition:.13s;font-weight:600;
+  }
+  .mp-mini:hover{background:rgba(125,227,196,.26)}
+  .mp-mini:disabled{opacity:.35;cursor:not-allowed}
+  .mp-mini.danger{background:rgba(255,110,110,.12);border-color:rgba(255,110,110,.32);color:#ff9b9b}
+  .mp-mini.danger:hover{background:rgba(255,110,110,.22)}
+  .mp-mini.gold{background:rgba(255,215,94,.12);border-color:rgba(255,215,94,.34);color:#ffd75e}
+  .mp-mini.gold:hover{background:rgba(255,215,94,.24)}
+  .mp-empty{text-align:center;padding:26px 10px;font-size:12px;color:rgba(160,195,215,.45);line-height:1.7}
+
+  /* ---------- 设置弹窗 ---------- */
+  #settingsModal{
+    position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
+    background:rgba(6,12,18,.62);backdrop-filter:blur(5px);
+    opacity:0;pointer-events:none;transition:opacity .2s;
+  }
+  #settingsModal.show{opacity:1;pointer-events:auto}
+  .sm-box{
+    width:min(400px,92vw);border-radius:18px;overflow:hidden;
+    background:rgba(18,29,38,.98);border:1px solid rgba(150,210,235,.2);
+    box-shadow:0 26px 70px rgba(0,0,0,.65);
+    transform:translateY(12px) scale(.97);transition:transform .22s;
+  }
+  #settingsModal.show .sm-box{transform:translateY(0) scale(1)}
+  .sm-head{display:flex;align-items:center;justify-content:space-between;
+    padding:15px 18px 12px;font-size:15px;font-weight:700;color:#e6f3fb;
+    border-bottom:1px solid rgba(150,210,235,.1)}
+  .sm-head .sm-close{cursor:pointer;font-size:17px;color:rgba(180,210,228,.6);
+    padding:2px 6px;border-radius:7px;transition:.15s}
+  .sm-head .sm-close:hover{color:#ff8a8a;background:rgba(255,120,120,.1)}
+  .sm-body{padding:14px 18px 6px}
+  .sm-row{margin-bottom:16px}
+  .sm-label{font-size:12.5px;color:#cfe4f0;margin-bottom:7px;font-weight:600;
+    display:flex;justify-content:space-between;align-items:center}
+  .sm-label em{font-style:normal;font-size:10.5px;color:rgba(160,195,215,.55);font-weight:400}
+  .sm-label .sm-val{color:#7de3c4;font-variant-numeric:tabular-nums}
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:3px;
+    background:rgba(255,255,255,.11);outline:none;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;width:17px;height:17px;border-radius:50%;
+    background:#7de3c4;border:2px solid #102028;cursor:pointer;
+    box-shadow:0 0 0 3px rgba(125,227,196,.18);transition:.15s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 5px rgba(125,227,196,.26)}
+  input[type=range]::-moz-range-thumb{
+    width:15px;height:15px;border-radius:50%;background:#7de3c4;border:2px solid #102028;cursor:pointer;
+  }
+  .sm-foot{display:flex;gap:8px;padding:8px 18px 18px}
+  .sm-foot button{
+    flex:1;font:inherit;font-size:13px;font-weight:600;padding:11px;border-radius:10px;cursor:pointer;
+    transition:.15s;
+  }
+  .btn-ghost{background:rgba(255,110,110,.1);border:1px solid rgba(255,110,110,.3);color:#ff9b9b}
+  .btn-ghost:hover{background:rgba(255,110,110,.2)}
+  .btn-primary{background:rgba(125,227,196,.16);border:1px solid rgba(125,227,196,.42);color:#7de3c4}
+  .btn-primary:hover{background:rgba(125,227,196,.26)}
+
+  /* ---------- toast ---------- */
+  #toast{
+    position:fixed;left:50%;top:20%;transform:translate(-50%,8px);
+    padding:10px 22px;border-radius:11px;font-size:13.5px;font-weight:600;
+    background:rgba(18,29,38,.94);color:#7de3c4;
+    border:1px solid rgba(125,227,196,.35);
+    opacity:0;pointer-events:none;transition:.28s;z-index:60;
+    box-shadow:0 8px 26px rgba(0,0,0,.4);max-width:88vw;text-align:center;
+  }
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+  #toast.err{color:#ff9b9b;border-color:rgba(255,120,120,.4)}
+
+  /* ---------- 全局错误提示 ---------- */
+  #errBanner{
+    position:fixed;left:50%;bottom:14px;transform:translateX(-50%);
+    padding:10px 18px;border-radius:10px;font-size:12px;font-family:monospace;
+    background:rgba(180,30,30,.95);color:#fff;z-index:9999;
+    max-width:92vw;display:none;box-shadow:0 6px 22px rgba(0,0,0,.5);
+    line-height:1.5;
+  }
+
+  @media (max-width:520px){
+    .res{font-size:12px;padding:3px 7px;gap:3px}
+    .res .ic{font-size:13px}
+    #buildMenu{width:min(268px,92vw)}
+    #tip{font-size:11.5px;padding:7px 14px}
+    .tbtn{width:40px;height:40px;font-size:17px}
+    #sideBtns{bottom:70px;right:10px;gap:6px}
+  }
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="hud">
+  <div class="res" id="resGold"><span class="ic">💰</span><span>0</span></div>
+  <div class="res" id="resWheat"><span class="ic">🌾</span><span>0</span></div>
+  <div class="res" id="resWood"><span class="ic">🪵</span><span>0</span></div>
+  <div class="res" id="resPop"><span class="ic">👥</span><span>0/2</span></div>
+  <div class="res" id="resHappy"><span class="ic">😊</span><span>0</span></div>
+</div>
+
+<div id="sideBtns">
+  <button class="tbtn" id="btnManage" title="小镇管理">📋<span class="dot" id="volDot"></span></button>
+  <button class="tbtn" id="btnSettings" title="设置">⚙️</button>
+  <button class="tbtn" id="btnSave" title="保存">💾</button>
+</div>
+
+<div id="tip">点击 <b>空地</b> 建造 · 点击 <b>建筑</b> 收获 · 点击 <b>居民</b> 打招呼</div>
+
+<!-- 建造菜单 -->
+<div id="buildMenu">
+  <div class="bm-head"><span>建造建筑</span><span class="bm-close">✕</span></div>
+  <div id="bmList"></div>
+</div>
+
+<!-- 管理面板 -->
+<div id="managePanel">
+  <div class="mp-head"><span>🏘️ 小镇管理</span><span class="mp-close">✕</span></div>
+  <div class="mp-tabs">
+    <button data-tab="overview" class="active">概览</button>
+    <button data-tab="buildings">建筑</button>
+    <button data-tab="volunteers">志愿者</button>
+  </div>
+  <div id="mpBody"></div>
+</div>
+
+<!-- 设置 -->
+<div id="settingsModal">
+  <div class="sm-box">
+    <div class="sm-head"><span>⚙️ 游戏设置</span><span class="sm-close">✕</span></div>
+    <div class="sm-body">
+      <div class="sm-row">
+        <div class="sm-label">初始金币 <em>（重置小镇后生效）</em><span class="sm-val" id="vStartGold">320</span></div>
+        <input type="range" id="setStartGold" min="100" max="3000" step="50" value="320">
+      </div>
+      <div class="sm-row">
+        <div class="sm-label">建造成本倍率<span class="sm-val" id="vCostMult">1.0x</span></div>
+        <input type="range" id="setCostMult" min="0.5" max="2" step="0.1" value="1">
+      </div>
+      <div class="sm-row">
+        <div class="sm-label">产出速度倍率<span class="sm-val" id="vProdMult">1.0x</span></div>
+        <input type="range" id="setProdMult" min="0.5" max="3" step="0.1" value="1">
+      </div>
+      <div class="sm-row">
+        <div class="sm-label">居民 / 志愿者速度<span class="sm-val" id="vNpcMult">1.0x</span></div>
+        <input type="range" id="setNpcMult" min="0.5" max="2.5" step="0.1" value="1">
+      </div>
+    </div>
+    <div class="sm-foot">
+      <button class="btn-ghost" id="btnResetTown">🗑️ 重置小镇</button>
+      <button class="btn-primary" id="btnApplySettings">保存设置</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<div id="errBanner"></div>
+
+<script>
+(function () {
+'use strict';
+
+/* ============================================================
+   0. 全局错误提示（方便定位问题）
+   ============================================================ */
+const errBanner = document.getElementById('errBanner');
+let errHideTimer = 0;
+window.addEventListener('error', function (e) {
+  if (!errBanner) return;
+  errBanner.textContent = '⚠ 错误: ' + (e.message || '未知错误');
+  errBanner.style.display = 'block';
+  clearTimeout(errHideTimer);
+  errHideTimer = setTimeout(function () { errBanner.style.display = 'none'; }, 7000);
+});
+
+/* ============================================================
+   1. 基础常量
+   ============================================================ */
+const COLS = 18, ROWS = 12, TILE = 64;
+const MAP_W = COLS * TILE, MAP_H = ROWS * TILE;
+
+const SAVE_KEY = 'littleTownSave_v2';
+const SETTINGS_KEY = 'littleTownSettings_v2';
+
+const canvas = document.getElementById('game');
+const ctx = canvas ? canvas.getContext('2d') : null;
+
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const lerp = (a, b, t) => a + (b - a) * t;
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = arr => arr[(Math.random() * arr.length) | 0];
+
+function hash2(x, y) {
+  let h = Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263);
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+
+/* ---------- 音效 ---------- */
+let actx = null;
+function sfx(freq, dur, type, vol) {
+  try {
+    if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = type || 'sine';
+    o.frequency.setValueAtTime(freq, actx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(freq * 0.72, actx.currentTime + dur);
+    g.gain.setValueAtTime(vol || 0.05, actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + dur);
+    o.connect(g); g.connect(actx.destination);
+    o.start(); o.stop(actx.currentTime + dur + 0.02);
+  } catch (e) {}
+}
+
+/* ============================================================
+   2. 设置系统（安全 localStorage）
+   ============================================================ */
+const DEFAULT_SETTINGS = {
+  startGold: 320,
+  costMult: 1.0,
+  prodSpeedMult: 1.0,
+  npcSpeedMult: 1.0
+};
+let settings = Object.assign({}, DEFAULT_SETTINGS);
+
+function safeGetItem(key) {
+  try { return localStorage.getItem(key); } catch (e) { return null; }
+}
+function safeSetItem(key, val) {
+  try { localStorage.setItem(key, val); return true; } catch (e) { return false; }
+}
+
+function loadSettings() {
+  try {
+    const s = JSON.parse(safeGetItem(SETTINGS_KEY) || 'null');
+    if (s && typeof s === 'object') {
+      settings = Object.assign({}, DEFAULT_SETTINGS, s);
+    }
+  } catch (e) {}
+}
+function persistSettings() {
+  safeSetItem(SETTINGS_KEY, JSON.stringify(settings));
+}
+loadSettings();
+
+/* ============================================================
+   3. 建筑定义
+   ============================================================ */
+const BTYPES = {
+  farm: {
+    name: '麦田', icon: '🌾', desc: '缓慢产出小麦',
+    cost: { gold: 50 },
+    prod: { item: 'wheat', amount: 1, interval: 6, cap: 4 },
+    color: '#c8b060'
+  },
+  lumber: {
+    name: '伐木场', icon: '🪵', desc: '砍伐树木产出木材',
+    cost: { gold: 70 },
+    prod: { item: 'wood', amount: 1, interval: 6, cap: 4 },
+    color: '#8a6a3e'
+  },
+  bakery: {
+    name: '面包坊', icon: '🍞', desc: '消耗小麦，烤出金币',
+    cost: { gold: 150, wood: 10 },
+    cons: { item: 'wheat', amount: 1 },
+    prod: { item: 'gold', amount: 16, interval: 5.5, cap: 48 },
+    color: '#e0a050'
+  },
+  shop: {
+    name: '杂货铺', icon: '🏪', desc: '居民会进来消费',
+    cost: { gold: 200, wood: 15 },
+    prod: { item: 'gold', amount: 11, interval: 5, cap: 44 },
+    color: '#4a9ec9'
+  },
+  house: {
+    name: '民居', icon: '🏠', desc: '吸引新居民入住',
+    cost: { gold: 120, wood: 20 },
+    prod: null, pop: 2,
+    color: '#c95a4a'
+  },
+  fountain: {
+    name: '喷泉', icon: '⛲', desc: '提升全镇幸福度',
+    cost: { gold: 180, wood: 10 },
+    prod: null, happy: 1,
+    color: '#5ac9c9'
+  }
+};
+const BUILD_ORDER = ['farm', 'lumber', 'bakery', 'shop', 'house', 'fountain'];
+
+function buildingCost(type) {
+  const c = BTYPES[type].cost;
+  const out = {};
+  for (const k in c) out[k] = Math.max(1, Math.round(c[k] * settings.costMult));
+  return out;
+}
+
+/* ============================================================
+   4. NPC 定义
+   ============================================================ */
+const NPC_TYPES = [
+  { key: 'student',  label: '学生', speed: 62, tip: 0.8,
+    c: { shirt: '#5b8dd6', pants: '#2d4a78', skin: '#f2cba6', hair: '#3a2a1a', shoe: '#28343f' } },
+  { key: 'worker',   label: '工人', speed: 50, tip: 1.0,
+    c: { shirt: '#d9813a', pants: '#4a3a2a', skin: '#e8b88a', hair: '#2a1a0a', shoe: '#2a2420' } },
+  { key: 'merchant', label: '商人', speed: 44, tip: 1.9,
+    c: { shirt: '#7a4fb5', pants: '#2a1a3a', skin: '#f2cba6', hair: '#1a1a1a', shoe: '#1a1220' } },
+  { key: 'elder',    label: '老人', speed: 30, tip: 0.7,
+    c: { shirt: '#9aa8b8', pants: '#4a4a5a', skin: '#eac6a4', hair: '#e4e4e4', shoe: '#3a3a44' } },
+  { key: 'tourist',  label: '游客', speed: 56, tip: 1.5,
+    c: { shirt: '#e85a7a', pants: '#3a5a8a', skin: '#f7d2ac', hair: '#8a5a2a', shoe: '#2a3a4a' } },
+  { key: 'kid',      label: '小孩', speed: 74, tip: 0.5,
+    c: { shirt: '#f2c94c', pants: '#5a8a3a', skin: '#f7d2ac', hair: '#4a2a10', shoe: '#3a2a20' } },
+  { key: 'artist',   label: '画家', speed: 40, tip: 1.3,
+    c: { shirt: '#3fb5a0', pants: '#4a3a5a', skin: '#eec8a0', hair: '#6a3a1a', shoe: '#2a2a30' } }
+];
+
+const SURNAMES = ['李','王','张','刘','陈','杨','赵','黄','周','吴','徐','孙','马','朱','胡','郭','林','何','高','罗','梁','宋','郑','谢'];
+const GIVEN = ['小满','一诺','子轩','雨桐','思远','书瑶','明哲','静怡','天佑','若曦','嘉言','清和','雨泽','梦琪','沐辰','安然','星野','南乔','砚清','半夏'];
+
+/* ============================================================
+   5. 志愿者定义
+   ============================================================ */
+const VOL_TYPES = {
+  harvester: {
+    name: '收割志愿者', icon: '🌾', color: '#7ec85a',
+    specs: ['farm'], wage: 15, hire: 100,
+    desc: '专精麦田，自动收取小麦'
+  },
+  lumberjack: {
+    name: '伐木志愿者', icon: '🪵', color: '#c09456',
+    specs: ['lumber'], wage: 15, hire: 100,
+    desc: '专精伐木场，自动收取木材'
+  },
+  merchant: {
+    name: '商贩志愿者', icon: '💰', color: '#f0c040',
+    specs: ['shop', 'bakery'], wage: 22, hire: 160,
+    desc: '专精店铺，自动收取金币'
+  },
+  allround: {
+    name: '全能志愿者', icon: '⭐', color: '#7de3c4',
+    specs: null, wage: 36, hire: 280,
+    desc: '任何建筑的产出都能收取'
+  }
+};
+const VOL_ORDER = ['harvester', 'lumberjack', 'merchant', 'allround'];
+const WAGE_PERIOD = 20;
+
+/* ============================================================
+   6. 游戏状态
+   ============================================================ */
+const resources = { gold: 320, wheat: 0, wood: 0 };
+
+let grid = [];
+let npcs = [];
+let volunteers = [];
+let particles = [];
+let floaters = [];
+let rings = [];
+
+let time = 0;
+let dayPhase = 0;
+let houses = 0;
+let fountains = 0;
+let totalGoldEarned = 0;
+
+let spawnTimer = 2.0;
+let buildMenuCell = null;
+let hoverEntity = null;
+let autoSaveTimer = 0;
+let lastVolCount = -1;
+
+const view = { scale: 1, ox: 0, oy: 0 };
+
+/* ============================================================
+   7. 地图初始化
+   ============================================================ */
+function newBuilding(type) {
+  return {
+    type: type,
+    stored: 0,
+    timer: Math.random() * 1.5,
+    bob: Math.random() * 6.28,
+    smoke: 0,
+    born: time
+  };
+}
+
+function emptyGrid() {
+  const g = [];
+  for (let y = 0; y < ROWS; y++) {
+    const row = [];
+    for (let x = 0; x < COLS; x++) row.push({ ground: 0, b: null, decor: null });
+    g.push(row);
+  }
+  return g;
+}
+
+function initMap() {
+  grid = emptyGrid();
+  houses = 0;
+  fountains = 0;
+
+  for (let x = 0; x < COLS; x++) grid[6][x].ground = 1;
+  for (let y = 0; y < ROWS; y++) grid[y][9].ground = 1;
+
+  grid[5][4].b = newBuilding('farm');
+  grid[5][7].b = newBuilding('house');
+  houses = 1;
+
+  for (let i = 0; i < 16; i++) {
+    const x = (Math.random() * COLS) | 0;
+    const y = (Math.random() * ROWS) | 0;
+    const cell = grid[y][x];
+    if (cell.b || cell.ground === 1) continue;
+    if (Math.abs(x - 9) <= 1 || Math.abs(y - 6) <= 1) continue;
+    cell.decor = { type: 'tree', seed: Math.random() * 1000 };
+  }
+
+  for (let i = 0; i < 26; i++) {
+    const x = (Math.random() * COLS) | 0;
+    const y = (Math.random() * ROWS) | 0;
+    const cell = grid[y][x];
+    if (cell.b || cell.decor || cell.ground === 1) continue;
+    cell.decor = { type: 'flower', seed: Math.random() * 1000 };
+  }
+}
+
+/* 安全刷新管理面板（仅当面板已打开） */
+function refreshManageIfOpen() {
+  if (managePanel && managePanel.classList.contains('show')) {
+    try { renderManagePanel(); } catch (e) { console.error('manage render', e); }
+  }
+}
+
+function resetGame() {
+  resources.gold = settings.startGold;
+  resources.wheat = 0;
+  resources.wood = 0;
+  totalGoldEarned = 0;
+  time = 0;
+  dayPhase = 0;
+  npcs = [];
+  volunteers = [];
+  particles = [];
+  floaters = [];
+  rings = [];
+  spawnTimer = 2;
+  autoSaveTimer = 0;
+  lastVolCount = -1;
+  initMap();
+  updateVolDot();
+  refreshManageIfOpen();
+}
+
+/* ============================================================
+   8. 资源
+   ============================================================ */
+function popCap() { return 2 + houses * 2; }
+function happyLevel() { return fountains; }
+function prodMultiplier() { return 1 + fountains * 0.12; }
+
+function canAfford(cost) {
+  for (const k in cost) if (resources[k] < cost[k]) return false;
+  return true;
+}
+function pay(cost) {
+  for (const k in cost) resources[k] -= cost[k];
+}
+
+function addResource(key, amount) {
+  if (key === 'gold') totalGoldEarned += amount;
+  resources[key] += amount;
+  bumpHud(key);
+}
+
+let bumpTimers = {};
+function bumpHud(key) {
+  const map = { gold: 'resGold', wheat: 'resWheat', wood: 'resWood' };
+  const el = document.getElementById(map[key]);
+  if (!el) return;
+  el.classList.add('bump');
+  clearTimeout(bumpTimers[key]);
+  bumpTimers[key] = setTimeout(function () { el.classList.remove('bump'); }, 180);
+}
+
+/* ============================================================
+   9. 建造
+   ============================================================ */
+function buildAt(gx, gy, type) {
+  const cell = grid[gy] && grid[gy][gx];
+  if (!cell) return false;
+  if (cell.b || cell.decor) return false;
+
+  const def = BTYPES[type];
+  const cost = buildingCost(type);
+  if (!canAfford(cost)) { toast('资源不足'); return false; }
+
+  pay(cost);
+  cell.b = newBuilding(type);
+  if (def.pop) houses += def.pop;
+  if (def.happy) fountains += def.happy;
+
+  const cx = gx * TILE + TILE / 2, cy = gy * TILE + TILE;
+  for (let i = 0; i < 22; i++) {
+    const a = Math.random() * Math.PI * 2, sp = rand(30, 170);
+    particles.push({
+      x: cx, y: cy - 10, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 60,
+      life: 0.6, max: 0.6, size: rand(2, 4.5), color: '#ffe9a8'
+    });
+  }
+  rings.push({ x: cx, y: cy - 8, r: 6, max: 62, life: 0.5, color: '#ffe9a8' });
+
+  sfx(520, 0.16, 'triangle', 0.06);
+  toast(def.name + ' 建造完成');
+  refreshManageIfOpen();
+  return true;
+}
+
+/* ============================================================
+   10. NPC
+   ============================================================ */
+function randName() { return pick(SURNAMES) + pick(GIVEN); }
+
+function edgePoint() {
+  const s = (Math.random() * 4) | 0;
+  if (s === 0) return { x: -34, y: rand(60, MAP_H - 60) };
+  if (s === 1) return { x: MAP_W + 34, y: rand(60, MAP_H - 60) };
+  if (s === 2) return { x: rand(60, MAP_W - 60), y: -34 };
+  return { x: rand(60, MAP_W - 60), y: MAP_H + 34 };
+}
+
+function spawnNPC() {
+  const type = pick(NPC_TYPES);
+
+  const shops = [], others = [];
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const b = grid[y][x].b;
+      if (!b) continue;
+      const item = { x: x, y: y, b: b };
+      if (b.type === 'shop' || b.type === 'bakery') shops.push(item);
+      else others.push(item);
+    }
+  }
+  let target = null;
+  if (shops.length && Math.random() < 0.68) target = pick(shops);
+  else if (others.length) target = pick(others);
+  if (!target) return;
+
+  const start = edgePoint();
+  npcs.push({
+    x: start.x, y: start.y,
+    tx: target.x * TILE + TILE / 2,
+    ty: target.y * TILE + TILE - 12,
+    gx: target.x, gy: target.y,
+    speed: type.speed * rand(0.85, 1.15),
+    type: type, name: randName(),
+    state: 'walk',
+    timer: 0,
+    bob: Math.random() * 6.28,
+    facing: 1,
+    scale: type.key === 'kid' ? 0.82 : 1,
+    spendT: 0.6,
+    wave: 0,
+    leaving: false,
+    greeted: 0
+  });
+}
+
+function npcLeave(n) {
+  n.state = 'leave';
+  n.leaving = true;
+  const side = (Math.random() * 4) | 0;
+  if (side === 0) { n.tx = -40; n.ty = n.y; }
+  else if (side === 1) { n.tx = MAP_W + 40; n.ty = n.y; }
+  else if (side === 2) { n.tx = n.x; n.ty = -40; }
+  else { n.tx = n.x; n.ty = MAP_H + 40; }
+}
+
+function greetNPC(n) {
+  if (n.greeted && time - n.greeted < 2) return;
+  n.greeted = time;
+  n.wave = 1;
+
+  const base = Math.round(rand(2, 6) * n.type.tip);
+  const bonus = Math.round(base * (1 + happyLevel() * 0.18));
+  addResource('gold', bonus);
+
+  addFloater(n.x, n.y - 44 * n.scale, '+' + bonus + '💰', '#ffd75e', 15);
+  for (let i = 0; i < 5; i++) {
+    particles.push({
+      x: n.x + rand(-6, 6), y: n.y - 30 * n.scale,
+      vx: rand(-40, 40), vy: rand(-90, -30),
+      life: 0.55, max: 0.55, size: rand(2, 3.6), color: '#ff9ec4'
+    });
+  }
+  sfx(880, 0.1, 'sine', 0.045);
+}
+
+/* ============================================================
+   11. 志愿者
+   ============================================================ */
+function updateVolDot() {
+  const dot = document.getElementById('volDot');
+  if (!dot) return;
+  if (volunteers.length > 0) {
+    dot.textContent = volunteers.length;
+    dot.classList.add('show');
+  } else {
+    dot.classList.remove('show');
+  }
+}
+
+function hireVolunteer(type) {
+  const vt = VOL_TYPES[type];
+  if (!vt) return;
+  if (resources.gold < vt.hire) { toast('金币不足，无法招募', true); return; }
+  resources.gold -= vt.hire;
+
+  const spots = [[9, 6], [8, 6], [10, 6], [9, 5], [9, 7], [8, 5]];
+  const sp = pick(spots);
+  volunteers.push({
+    type: type,
+    x: sp[0] * TILE + TILE / 2 + rand(-12, 12),
+    y: sp[1] * TILE + TILE - 12 + rand(-6, 6),
+    tx: 0, ty: 0,
+    state: 'idle',
+    timer: rand(0.6, 1.6),
+    target: null,
+    bob: Math.random() * 6.28,
+    facing: 1,
+    payTimer: WAGE_PERIOD
+  });
+
+  addFloater(sp[0] * TILE + TILE / 2, sp[1] * TILE, '🎉 加入', '#7de3c4', 14);
+  burstAt(sp[0] * TILE + TILE / 2, sp[1] * TILE + TILE / 2, '#7de3c4', 14, 140);
+  sfx(660, 0.14, 'triangle', 0.05);
+  toast(vt.name + ' 加入了小镇');
+  updateVolDot();
+  refreshManageIfOpen();
+}
+
+function fireVolunteer(index) {
+  const v = volunteers[index];
+  if (!v) return;
+  const vt = VOL_TYPES[v.type];
+  addFloater(v.x, v.y - 40, '再见…', '#ff9b9b', 12);
+  volunteers.splice(index, 1);
+  toast(vt.name + ' 离开了小镇');
+  updateVolDot();
+  refreshManageIfOpen();
+}
+
+function volFindTarget(v) {
+  const vt = VOL_TYPES[v.type];
+  const specs = vt.specs;
+  const candidates = [];
+
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const b = grid[y][x].b;
+      if (!b) continue;
+      if (specs && specs.indexOf(b.type) < 0) continue;
+      const def = BTYPES[b.type];
+      if (!def.prod) continue;
+      if (b.stored <= 0) continue;
+
+      let claimed = false;
+      for (let i = 0; i < volunteers.length; i++) {
+        const o = volunteers[i];
+        if (o !== v && o.target && o.target.gx === x && o.target.gy === y) { claimed = true; break; }
+      }
+      if (claimed) continue;
+
+      const cx = x * TILE + TILE / 2;
+      const cy = y * TILE + TILE / 2;
+      candidates.push({ gx: x, gy: y, d: Math.hypot(cx - v.x, cy - v.y) });
+    }
+  }
+  if (!candidates.length) return null;
+  candidates.sort(function (a, b) { return a.d - b.d; });
+  return candidates[0];
+}
+
+function updateVolunteers(dt) {
+  for (let i = volunteers.length - 1; i >= 0; i--) {
+    const v = volunteers[i];
+    const vt = VOL_TYPES[v.type];
+    if (!vt) { volunteers.splice(i, 1); continue; }
+
+    v.bob += dt * (v.state === 'walk' ? 9 : 2);
+
+    /* 工资结算 */
+    v.payTimer -= dt;
+    if (v.payTimer <= 0) {
+      v.payTimer = WAGE_PERIOD;
+      if (resources.gold >= vt.wage) {
+        resources.gold -= vt.wage;
+        addFloater(v.x, v.y - 42, '-' + vt.wage + ' 💰', '#ff9b9b', 12);
+        bumpHud('gold');
+      } else {
+        addFloater(v.x, v.y - 42, '工资不足…', '#ff9b9b', 12);
+        toast(vt.name + ' 因工资不足离开了小镇', true);
+        volunteers.splice(i, 1);
+        updateVolDot();
+        refreshManageIfOpen();
+        continue;
+      }
+    }
+
+    /* 行为 */
+    if (v.state === 'idle') {
+      v.timer -= dt;
+      if (v.timer <= 0) {
+        const t = volFindTarget(v);
+        if (t) {
+          v.target = t;
+          v.tx = t.gx * TILE + TILE / 2;
+          v.ty = t.gy * TILE + TILE - 12;
+          v.state = 'walk';
+        } else {
+          v.timer = rand(1.8, 3.6);
+          if (Math.random() < 0.28) {
+            v.tx = rand(60, MAP_W - 60);
+            v.ty = rand(110, MAP_H - 60);
+            v.target = null;
+            v.state = 'walk';
+          }
+        }
+      }
+    } else if (v.state === 'walk') {
+      const dx = v.tx - v.x, dy = v.ty - v.y;
+      const d = Math.hypot(dx, dy);
+      if (d < 3) {
+        if (v.target) { v.state = 'collect'; v.timer = 0.35; }
+        else { v.state = 'idle'; v.timer = rand(1, 2); }
+      } else {
+        const sp = 72 * settings.npcSpeedMult;
+        const move = Math.min(sp * dt, d);
+        v.x += dx / d * move;
+        v.y += dy / d * move;
+        if (Math.abs(dx) > 1) v.facing = dx > 0 ? 1 : -1;
+      }
+    } else if (v.state === 'collect') {
+      v.timer -= dt;
+      if (v.timer <= 0) {
+        const t = v.target;
+        v.target = null;
+        v.state = 'idle';
+        v.timer = rand(0.3, 1.0);
+        if (t) {
+          const cell = grid[t.gy] && grid[t.gy][t.gx];
+          const b = cell && cell.b;
+          if (b && b.stored > 0) {
+            const def = BTYPES[b.type];
+            const amt = b.stored;
+            b.stored = 0;
+            addResource(def.prod.item, amt);
+            const iconMap = { wheat: '🌾', wood: '🪵', gold: '💰' };
+            const cx = t.gx * TILE + TILE / 2;
+            const cy = t.gy * TILE + 4;
+            addFloater(cx, cy, '+' + amt + ' ' + iconMap[def.prod.item], '#c8f0a0', 12);
+            burstAt(cx, t.gy * TILE + TILE * 0.6, '#c8f0a0', 8, 90);
+            sfx(700, 0.07, 'sine', 0.03);
+          }
+        }
+      }
+    }
+  }
+}
+
+/* ============================================================
+   12. 飘字 / 粒子
+   ============================================================ */
+function addFloater(x, y, text, color, size) {
+  floaters.push({
+    x: x, y: y, text: text, color: color || '#fff', size: size || 14,
+    life: 1.05, max: 1.05, vy: -42
+  });
+}
+
+function burstAt(x, y, color, n, power) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * Math.PI * 2, sp = rand(20, power);
+    particles.push({
+      x: x, y: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 30,
+      life: 0.55, max: 0.55, size: rand(1.5, 3.6), color: color
+    });
+  }
+}
+
+/* ============================================================
+   13. 更新
+   ============================================================ */
+function updateBuildings(dt) {
+  const mult = prodMultiplier() * settings.prodSpeedMult;
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const b = grid[y][x].b;
+      if (!b) continue;
+      const def = BTYPES[b.type];
+      if (!def) continue;
+      b.bob += dt * 2;
+      if (!def.prod) continue;
+      const p = def.prod;
+
+      if (b.stored >= p.cap) { b.timer = 0; continue; }
+
+      if (def.cons) {
+        if (resources[def.cons.item] < def.cons.amount) continue;
+      }
+
+      b.timer += dt * mult;
+      if (b.timer >= p.interval) {
+        b.timer = 0;
+        if (def.cons) resources[def.cons.item] -= def.cons.amount;
+        b.stored = Math.min(p.cap, b.stored + p.amount);
+        if (def.cons) b.smoke = 0.8;
+      }
+    }
+  }
+}
+
+function updateNPCs(dt) {
+  for (let i = npcs.length - 1; i >= 0; i--) {
+    const n = npcs[i];
+    n.bob += dt * (n.state === 'walk' ? 9 : 2);
+    if (n.wave > 0) n.wave -= dt * 2.2;
+
+    if (n.state === 'walk' || n.state === 'leave') {
+      const dx = n.tx - n.x, dy = n.ty - n.y;
+      const d = Math.hypot(dx, dy);
+      if (d < 3) {
+        if (n.state === 'leave') { npcs.splice(i, 1); continue; }
+        n.state = 'stay';
+        n.timer = rand(3.2, 6.5);
+        n.spendT = 0.4;
+      } else {
+        const v = n.speed * settings.npcSpeedMult * dt;
+        n.x += dx / d * v;
+        n.y += dy / d * v;
+        if (Math.abs(dx) > 1) n.facing = dx > 0 ? 1 : -1;
+      }
+    } else if (n.state === 'stay') {
+      n.timer -= dt;
+      n.spendT -= dt;
+
+      if (n.spendT <= 0) {
+        n.spendT = 1.6;
+        let found = false;
+        for (let dy = -1; dy <= 1 && !found; dy++) {
+          for (let dx = -1; dx <= 1 && !found; dx++) {
+            const gx = n.gx + dx, gy = n.gy + dy;
+            if (gx < 0 || gx >= COLS || gy < 0 || gy >= ROWS) continue;
+            const b = grid[gy][gx].b;
+            if (!b) continue;
+            const def = BTYPES[b.type];
+            if (!def || !def.prod || def.prod.item !== 'gold') continue;
+            if (b.stored >= def.prod.cap) continue;
+
+            const gain = Math.round(rand(2, 5) * n.type.tip);
+            b.stored = Math.min(def.prod.cap, b.stored + gain);
+            addFloater(gx * TILE + TILE / 2, gy * TILE - 4, '+' + gain, '#ffe089', 12);
+            found = true;
+          }
+        }
+      }
+
+      if (n.timer <= 0) npcLeave(n);
+    }
+
+    if (n.x < -90 || n.x > MAP_W + 90 || n.y < -90 || n.y > MAP_H + 90) {
+      npcs.splice(i, 1);
+    }
+  }
+}
+
+function updateParticles(dt) {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    p.vy += 220 * dt;
+    p.vx *= 0.97;
+    p.life -= dt;
+    if (p.life <= 0) particles.splice(i, 1);
+  }
+
+  for (let i = floaters.length - 1; i >= 0; i--) {
+    const f = floaters[i];
+    f.y += f.vy * dt;
+    f.vy *= 0.94;
+    f.life -= dt;
+    if (f.life <= 0) floaters.splice(i, 1);
+  }
+
+  for (let i = rings.length - 1; i >= 0; i--) {
+    const r = rings[i];
+    r.r = lerp(r.r, r.max, dt * 9);
+    r.life -= dt;
+    if (r.life <= 0) rings.splice(i, 1);
+  }
+}
+
+function update(dt) {
+  time += dt;
+  dayPhase = (Math.sin(time * 0.045 - Math.PI / 2) + 1) / 2;
+
+  updateBuildings(dt);
+  updateNPCs(dt);
+  updateVolunteers(dt);
+  updateParticles(dt);
+
+  spawnTimer -= dt;
+  if (spawnTimer <= 0) {
+    spawnTimer = rand(2.2, 4.4);
+    if (npcs.length < popCap() + 2) spawnNPC();
+  }
+
+  autoSaveTimer += dt;
+  if (autoSaveTimer > 25) {
+    autoSaveTimer = 0;
+    saveGame(true);
+  }
+
+  if (volunteers.length !== lastVolCount) {
+    lastVolCount = volunteers.length;
+    updateVolDot();
+  }
+}
+
+/* ============================================================
+   14. 渲染工具
+   ============================================================ */
+function roundRect(x, y, w, h, r) {
+  r = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(x, y, w, h, r);
+  else {
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+}
+
+function drawGround() {
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const cell = grid[y][x];
+      const px = x * TILE, py = y * TILE;
+
+      if (cell.ground === 1) {
+        ctx.fillStyle = '#c2b394';
+        ctx.fillRect(px, py, TILE, TILE);
+        ctx.fillStyle = 'rgba(255,255,255,0.10)';
+        for (let i = 0; i < 4; i++) {
+          const hx = hash2(x * 31 + i, y * 17);
+          const hy = hash2(y * 23 + i, x * 11);
+          ctx.fillRect(px + hx * TILE, py + hy * TILE, 3, 2);
+        }
+        ctx.strokeStyle = 'rgba(120,105,80,0.18)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(px + 0.5, py + 0.5, TILE - 1, TILE - 1);
+      } else {
+        const alt = (x + y) % 2 === 0;
+        ctx.fillStyle = alt ? '#7eb85c' : '#77b055';
+        ctx.fillRect(px, py, TILE, TILE);
+
+        ctx.fillStyle = 'rgba(95,150,65,0.45)';
+        for (let i = 0; i < 5; i++) {
+          const hx = hash2(x * 53 + i * 7, y * 29 + i);
+          const hy = hash2(y * 41 + i * 3, x * 19 + i);
+          const gx = px + hx * (TILE - 6) + 2;
+          const gy = py + hy * (TILE - 8) + 3;
+          ctx.fillRect(gx, gy, 1.5, 3);
+        }
+        ctx.fillStyle = 'rgba(160,210,120,0.20)';
+        if (hash2(x, y) > 0.6) {
+          ctx.fillRect(px + 6, py + 8, TILE - 12, TILE - 16);
+        }
+      }
+    }
+  }
+}
+
+function drawTree(px, py, seed) {
+  const cx = px + TILE / 2;
+  const baseY = py + TILE - 4;
+  const s = 0.88 + (seed % 1) * 0.22;
+
+  ctx.fillStyle = 'rgba(30,60,30,0.22)';
+  ctx.beginPath();
+  ctx.ellipse(cx, baseY, 17 * s, 6 * s, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#7a5230';
+  ctx.fillRect(cx - 3.5 * s, baseY - 22 * s, 7 * s, 22 * s);
+
+  const cy = baseY - 34 * s;
+  const blobs = [
+    { dx: 0, dy: 0, r: 17 * s, c: '#3f8b34' },
+    { dx: -11 * s, dy: 5 * s, r: 12 * s, c: '#357a2c' },
+    { dx: 11 * s, dy: 4 * s, r: 12 * s, c: '#4b9c40' },
+    { dx: 2 * s, dy: -10 * s, r: 12 * s, c: '#54a849' }
+  ];
+  for (let i = 0; i < blobs.length; i++) {
+    const b = blobs[i];
+    ctx.fillStyle = b.c;
+    ctx.beginPath();
+    ctx.arc(cx + b.dx, cy + b.dy, b.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = 'rgba(190,240,150,0.28)';
+  ctx.beginPath();
+  ctx.arc(cx - 4 * s, cy - 6 * s, 7 * s, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawFlower(px, py, seed) {
+  const cx = px + TILE / 2 + (hash2(seed, 3) - 0.5) * 26;
+  const cy = py + TILE / 2 + (hash2(seed, 7) - 0.5) * 26;
+  const colors = ['#f7e26b', '#f78a8a', '#c9a0f7', '#ffffff'];
+  const c = colors[Math.floor(hash2(seed, 11) * colors.length)];
+
+  ctx.fillStyle = 'rgba(60,110,50,0.55)';
+  ctx.fillRect(cx - 0.8, cy, 1.6, 5);
+
+  ctx.fillStyle = c;
+  for (let i = 0; i < 4; i++) {
+    const a = i * Math.PI / 2;
+    ctx.beginPath();
+    ctx.arc(cx + Math.cos(a) * 2.4, cy + Math.sin(a) * 2.4, 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = '#ffd75e';
+  ctx.beginPath();
+  ctx.arc(cx, cy, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawShadow(px, py, w) {
+  ctx.fillStyle = 'rgba(24,48,34,0.24)';
+  ctx.beginPath();
+  ctx.ellipse(px + TILE / 2, py + TILE - 7, (w || TILE * 0.38), TILE * 0.12, 0, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+/* ---------- 建筑 ---------- */
+function drawFarm(b, px, py) {
+  ctx.fillStyle = '#8a6a42';
+  roundRect(px + 6, py + 16, TILE - 12, TILE - 26, 6);
+  ctx.fill();
+
+  ctx.fillStyle = 'rgba(0,0,0,0.13)';
+  for (let i = 0; i < 4; i++) ctx.fillRect(px + 9, py + 22 + i * 9, TILE - 18, 2);
+
+  const ready = b.stored > 0;
+  const sway = Math.sin(b.bob) * 1.6;
+  for (let i = 0; i < 12; i++) {
+    const gx = px + 11 + (i % 4) * 11.5;
+    const gy = py + 24 + Math.floor(i / 4) * 9;
+    const h = 8 + ((i * 7) % 4);
+    ctx.strokeStyle = ready ? '#d9b845' : '#6fae4e';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(gx, gy + 4);
+    ctx.quadraticCurveTo(gx + sway * 0.6, gy - h * 0.5, gx + sway, gy - h);
+    ctx.stroke();
+    if (ready) {
+      ctx.fillStyle = '#f2cf55';
+      ctx.beginPath();
+      ctx.arc(gx + sway, gy - h, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
+function drawLumber(b, px, py) {
+  const cx = px + TILE / 2;
+
+  ctx.fillStyle = '#a67c4a';
+  roundRect(px + 12, py + 26, TILE - 24, 24, 4);
+  ctx.fill();
+
+  ctx.fillStyle = '#6e4f2e';
+  ctx.beginPath();
+  ctx.moveTo(px + 8, py + 28);
+  ctx.lineTo(cx, py + 14);
+  ctx.lineTo(px + TILE - 8, py + 28);
+  ctx.closePath();
+  ctx.fill();
+
+  const logs = [
+    { x: px + 16, y: py + 40 },
+    { x: px + 26, y: py + 40 },
+    { x: px + 21, y: py + 34 }
+  ];
+  for (let i = 0; i < logs.length; i++) {
+    const l = logs[i];
+    ctx.fillStyle = '#8a6a3e';
+    ctx.beginPath();
+    ctx.arc(l.x, l.y, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#6e5230';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.arc(l.x, l.y, 2.6, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle = '#5a4028';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(px + 44, py + 42);
+  ctx.lineTo(px + 49, py + 33);
+  ctx.stroke();
+  ctx.fillStyle = '#b8c0c8';
+  ctx.beginPath();
+  ctx.moveTo(px + 47, py + 33);
+  ctx.lineTo(px + 53, py + 30);
+  ctx.lineTo(px + 51, py + 36);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawHouseBase(px, py, opt) {
+  const cx = px + TILE / 2;
+  const wallW = TILE * 0.64;
+  const wallH = TILE * 0.40;
+  const wallX = cx - wallW / 2;
+  const wallY = py + TILE * 0.48;
+
+  ctx.fillStyle = opt.wall;
+  roundRect(wallX, wallY, wallW, wallH, 3);
+  ctx.fill();
+
+  ctx.fillStyle = 'rgba(0,0,0,0.07)';
+  for (let i = 0; i < 3; i++) ctx.fillRect(wallX + 4, wallY + 8 + i * 8, wallW - 8, 1);
+
+  const roofTop = wallY - TILE * 0.27;
+  ctx.fillStyle = opt.roof;
+  ctx.beginPath();
+  ctx.moveTo(cx - wallW / 2 - 6, wallY + 3);
+  ctx.lineTo(cx, roofTop);
+  ctx.lineTo(cx + wallW / 2 + 6, wallY + 3);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = 'rgba(255,255,255,0.18)';
+  ctx.beginPath();
+  ctx.moveTo(cx - wallW / 2 - 6, wallY + 3);
+  ctx.lineTo(cx, roofTop);
+  ctx.lineTo(cx - 2, roofTop + 4);
+  ctx.lineTo(cx - wallW / 2 - 2, wallY + 3);
+  ctx.closePath();
+  ctx.fill();
+
+  const dw = 12, dh = 16;
+  ctx.fillStyle = opt.door || '#6b4a2e';
+  roundRect(cx - dw / 2, wallY + wallH - dh, dw, dh, 2);
+  ctx.fill();
+  ctx.fillStyle = '#ffd75e';
+  ctx.beginPath();
+  ctx.arc(cx + dw / 2 - 3, wallY + wallH - dh / 2, 1.3, 0, Math.PI * 2);
+  ctx.fill();
+
+  return { wallX: wallX, wallY: wallY, wallW: wallW, wallH: wallH, cx: cx, roofTop: roofTop };
+}
+
+function drawWindow(x, y, w, h, glow) {
+  ctx.fillStyle = glow ? 'rgba(255,224,150,0.92)' : '#9fd3e8';
+  roundRect(x, y, w, h, 2);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(80,60,40,0.55)';
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x + w / 2, y);
+  ctx.lineTo(x + w / 2, y + h);
+  ctx.stroke();
+  if (glow) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const g = ctx.createRadialGradient(x + w / 2, y + h / 2, 0, x + w / 2, y + h / 2, w * 1.6);
+    g.addColorStop(0, 'rgba(255,220,140,0.32)');
+    g.addColorStop(1, 'rgba(255,220,140,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(x - w, y - h, w * 3, h * 3);
+    ctx.restore();
+  }
+}
+
+function drawHouse(b, px, py) {
+  const info = drawHouseBase(px, py, { wall: '#e8dcc8', roof: '#c95a4a', door: '#7a4a2e' });
+  const night = dayPhase < 0.35;
+  drawWindow(info.wallX + 7, info.wallY + 8, 12, 11, night);
+  drawWindow(info.wallX + info.wallW - 19, info.wallY + 8, 12, 11, night);
+
+  ctx.fillStyle = '#9a8a7a';
+  ctx.fillRect(info.cx + 12, info.roofTop + 6, 8, 14);
+  ctx.fillStyle = '#7a6a5a';
+  ctx.fillRect(info.cx + 12, info.roofTop + 6, 8, 3);
+
+  const t = (time * 0.7 + b.bob) % 3;
+  if (t < 1.6) {
+    ctx.fillStyle = 'rgba(230,235,240,' + (0.4 * (1 - t / 1.6)) + ')';
+    ctx.beginPath();
+    ctx.arc(info.cx + 16, info.roofTop - t * 10, 3 + t * 3.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawBakery(b, px, py) {
+  const info = drawHouseBase(px, py, { wall: '#f2dfb8', roof: '#d98442', door: '#8a5a30' });
+  const night = dayPhase < 0.35;
+
+  drawWindow(info.wallX + 6, info.wallY + 8, 13, 11, true);
+  drawWindow(info.wallX + info.wallW - 19, info.wallY + 8, 13, 11, true);
+
+  const awY = info.wallY + 2;
+  for (let i = 0; i < 5; i++) {
+    ctx.fillStyle = i % 2 === 0 ? '#e85a5a' : '#f8f0e0';
+    ctx.fillRect(info.wallX + i * (info.wallW / 5), awY, info.wallW / 5, 6);
+  }
+  ctx.fillStyle = 'rgba(0,0,0,0.16)';
+  ctx.fillRect(info.wallX, awY + 6, info.wallW, 1.5);
+
+  ctx.font = '13px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('🍞', info.cx, info.roofTop + 16);
+
+  const t = (time * 0.9 + b.bob) % 2.6;
+  if (t < 1.8) {
+    const a = 0.45 * (1 - t / 1.8);
+    ctx.fillStyle = 'rgba(240,240,245,' + a + ')';
+    ctx.beginPath();
+    ctx.arc(info.cx + 14, info.roofTop - t * 12, 3 + t * 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(240,240,245,' + (a * 0.6) + ')';
+    ctx.beginPath();
+    ctx.arc(info.cx + 18, info.roofTop - t * 12 - 8, 2 + t * 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  if (night) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const g = ctx.createRadialGradient(info.cx, info.wallY + 14, 0, info.cx, info.wallY + 14, 46);
+    g.addColorStop(0, 'rgba(255,200,110,0.22)');
+    g.addColorStop(1, 'rgba(255,200,110,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(info.cx - 46, info.wallY - 32, 92, 92);
+    ctx.restore();
+  }
+}
+
+function drawShop(b, px, py) {
+  const info = drawHouseBase(px, py, { wall: '#cfe4ee', roof: '#4a9ec9', door: '#3a6a86' });
+  const night = dayPhase < 0.35;
+
+  drawWindow(info.wallX + 6, info.wallY + 8, 12, 10, night);
+  drawWindow(info.wallX + info.wallW - 18, info.wallY + 8, 12, 10, night);
+
+  const awY = info.wallY + 1;
+  const n = 6;
+  for (let i = 0; i < n; i++) {
+    ctx.fillStyle = i % 2 === 0 ? '#4a9ec9' : '#ffffff';
+    const w = info.wallW / n;
+    ctx.beginPath();
+    ctx.moveTo(info.wallX + i * w, awY);
+    ctx.lineTo(info.wallX + (i + 1) * w, awY);
+    ctx.lineTo(info.wallX + (i + 1) * w - 1, awY + 8);
+    ctx.lineTo(info.wallX + i * w + 1, awY + 8);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  ctx.fillStyle = '#2e6a86';
+  roundRect(info.cx - 16, info.roofTop + 8, 32, 10, 3);
+  ctx.fill();
+  ctx.fillStyle = '#dff0fa';
+  ctx.font = 'bold 7px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('SHOP', info.cx, info.roofTop + 13);
+}
+
+function drawFountain(b, px, py) {
+  const cx = px + TILE / 2;
+  const cy = py + TILE * 0.72;
+
+  ctx.fillStyle = '#9ab8c4';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, 22, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#5aa8c9';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy - 1, 18, 9, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = 'rgba(220,245,255,0.5)';
+  ctx.lineWidth = 1.2;
+  for (let i = 0; i < 3; i++) {
+    const r = 5 + i * 5 + Math.sin(time * 2 + i) * 1.5;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy - 1, r, r * 0.5, 0, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = '#c8d4dc';
+  ctx.fillRect(cx - 4, cy - 26, 8, 22);
+  ctx.fillStyle = '#a8bcc8';
+  ctx.fillRect(cx - 6, cy - 28, 12, 4);
+
+  const h = 22 + Math.sin(time * 4) * 2;
+  ctx.strokeStyle = 'rgba(190,235,255,0.75)';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - 28);
+  ctx.lineTo(cx, cy - 28 - h);
+  ctx.stroke();
+
+  ctx.fillStyle = 'rgba(210,245,255,0.8)';
+  for (let i = 0; i < 6; i++) {
+    const a = time * 2 + i * 1.05;
+    const rr = 8 + Math.sin(a) * 4;
+    ctx.beginPath();
+    ctx.arc(cx + Math.cos(a) * rr, cy - 28 - h + Math.abs(Math.sin(a)) * 8, 1.8, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawBuilding(b, px, py) {
+  drawShadow(px, py, b.type === 'fountain' ? 26 : TILE * 0.38);
+  switch (b.type) {
+    case 'farm': drawFarm(b, px, py); break;
+    case 'lumber': drawLumber(b, px, py); break;
+    case 'bakery': drawBakery(b, px, py); break;
+    case 'shop': drawShop(b, px, py); break;
+    case 'house': drawHouse(b, px, py); break;
+    case 'fountain': drawFountain(b, px, py); break;
+  }
+}
+
+function drawStoredBadge(b, px, py) {
+  const def = BTYPES[b.type];
+  if (!def || !def.prod || b.stored <= 0) return;
+  const full = b.stored >= def.prod.cap;
+  const bobY = full ? Math.sin(time * 6) * 2.5 : 0;
+
+  const iconMap = { wheat: '🌾', wood: '🪵', gold: '💰' };
+  const txt = iconMap[def.prod.item] + ' ' + b.stored;
+
+  ctx.save();
+  ctx.font = 'bold 11px "PingFang SC",system-ui,sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const w = ctx.measureText(txt).width + 14;
+  const bx = px + TILE / 2, by = py - 2 + bobY;
+
+  ctx.fillStyle = full ? 'rgba(255,205,70,0.94)' : 'rgba(20,32,42,0.86)';
+  roundRect(bx - w / 2, by - 9, w, 18, 9);
+  ctx.fill();
+  ctx.strokeStyle = full ? 'rgba(255,240,180,0.9)' : 'rgba(150,210,235,0.32)';
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+
+  ctx.fillStyle = full ? '#3a2a10' : '#dff0fa';
+  ctx.fillText(txt, bx, by + 0.5);
+  ctx.restore();
+}
+
+/* ---------- NPC / 志愿者 ---------- */
+function drawNPC(n) {
+  const s = n.scale;
+  const px = n.x, py = n.y;
+  const c = n.type.c;
+  const walking = n.state === 'walk' || n.state === 'leave';
+  const swing = walking ? Math.sin(n.bob) : 0;
+
+  ctx.fillStyle = 'rgba(24,48,34,0.22)';
+  ctx.beginPath();
+  ctx.ellipse(px, py, 8 * s, 3.4 * s, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  const hipY = py - 9 * s;
+  const bodyTop = py - 19 * s;
+  const headY = py - 26 * s;
+
+  ctx.fillStyle = c.pants;
+  ctx.fillRect(px - 4.2 * s, hipY + swing * 1.6, 3.4 * s, 9 * s - swing * 1.6);
+  ctx.fillRect(px + 0.8 * s, hipY - swing * 1.6, 3.4 * s, 9 * s + swing * 1.6);
+
+  ctx.fillStyle = c.shoe;
+  ctx.fillRect(px - 4.4 * s, py - 2.6 * s, 3.8 * s, 2.6 * s);
+  ctx.fillRect(px + 0.6 * s, py - 2.6 * s, 3.8 * s, 2.6 * s);
+
+  ctx.fillStyle = c.shirt;
+  roundRect(px - 5.4 * s, bodyTop, 10.8 * s, 11 * s, 2.6 * s);
+  ctx.fill();
+
+  const armSwing = -swing * 1.4;
+  if (n.wave > 0) {
+    ctx.save();
+    ctx.translate(px + 5.4 * s, bodyTop + 2.5 * s);
+    ctx.rotate(-1.1 + Math.sin(time * 18) * 0.35);
+    ctx.fillRect(0, -1.6 * s, 3 * s, 6.5 * s);
+    ctx.fillStyle = c.skin;
+    ctx.beginPath();
+    ctx.arc(1.5 * s, -2.2 * s, 2.1 * s, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  } else {
+    ctx.fillRect(px + 5 * s, bodyTop + 1.5 * s, 2.6 * s, 7.5 * s + armSwing);
+  }
+  ctx.fillRect(px - 7.6 * s, bodyTop + 1.5 * s, 2.6 * s, 7.5 * s - armSwing);
+
+  ctx.fillStyle = c.skin;
+  roundRect(px - 4.6 * s, headY, 9.2 * s, 9 * s, 3.2 * s);
+  ctx.fill();
+
+  ctx.fillStyle = c.hair;
+  ctx.beginPath();
+  ctx.arc(px, headY + 2.6 * s, 4.8 * s, Math.PI, 0);
+  ctx.fill();
+  ctx.fillRect(px - 4.6 * s, headY + 2 * s, 9.2 * s, 2.4 * s);
+
+  const eyeDir = n.facing;
+  ctx.fillStyle = '#2a2a33';
+  ctx.fillRect(px - 2.6 * s + eyeDir * 0.5, headY + 4.6 * s, 1.3 * s, 1.7 * s);
+  ctx.fillRect(px + 1.3 * s + eyeDir * 0.5, headY + 4.6 * s, 1.3 * s, 1.7 * s);
+
+  ctx.fillStyle = 'rgba(240,140,140,0.35)';
+  ctx.fillRect(px - 3.6 * s, headY + 6.4 * s, 2 * s, 1.4 * s);
+  ctx.fillRect(px + 1.6 * s, headY + 6.4 * s, 2 * s, 1.4 * s);
+}
+
+function drawVolunteer(v) {
+  const vt = VOL_TYPES[v.type];
+  if (!vt) return;
+  const px = v.x, py = v.y;
+  const s = 1;
+  const walking = v.state === 'walk';
+  const swing = walking ? Math.sin(v.bob) : 0;
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  const gg = ctx.createRadialGradient(px, py - 12, 0, px, py - 12, 24);
+  gg.addColorStop(0, 'rgba(125,227,196,0.10)');
+  gg.addColorStop(1, 'rgba(125,227,196,0)');
+  ctx.fillStyle = gg;
+  ctx.fillRect(px - 24, py - 36, 48, 48);
+  ctx.restore();
+
+  ctx.fillStyle = 'rgba(24,48,34,0.22)';
+  ctx.beginPath();
+  ctx.ellipse(px, py, 8 * s, 3.4 * s, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  const hipY = py - 9 * s;
+  const bodyTop = py - 19 * s;
+  const headY = py - 26 * s;
+
+  ctx.fillStyle = '#38424e';
+  ctx.fillRect(px - 4.2 * s, hipY + swing * 1.6, 3.4 * s, 9 * s - swing * 1.6);
+  ctx.fillRect(px + 0.8 * s, hipY - swing * 1.6, 3.4 * s, 9 * s + swing * 1.6);
+
+  ctx.fillStyle = '#232a32';
+  ctx.fillRect(px - 4.4 * s, py - 2.6 * s, 3.8 * s, 2.6 * s);
+  ctx.fillRect(px + 0.6 * s, py - 2.6 * s, 3.8 * s, 2.6 * s);
+
+  ctx.fillStyle = vt.color;
+  roundRect(px - 5.4 * s, bodyTop, 10.8 * s, 11 * s, 2.6 * s);
+  ctx.fill();
+
+  ctx.fillStyle = 'rgba(255,255,255,0.55)';
+  ctx.fillRect(px - 5.4 * s, bodyTop + 5.6 * s, 10.8 * s, 1.6 * s);
+
+  const armSwing = -swing * 1.4;
+  ctx.fillStyle = vt.color;
+  ctx.fillRect(px + 5 * s, bodyTop + 1.5 * s, 2.6 * s, 7.5 * s + armSwing);
+  ctx.fillRect(px - 7.6 * s, bodyTop + 1.5 * s, 2.6 * s, 7.5 * s - armSwing);
+
+  ctx.fillStyle = '#f2cba6';
+  ctx.beginPath();
+  ctx.arc(px + 6.3 * s, bodyTop + 9.2 * s + armSwing, 1.6 * s, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#f2cba6';
+  roundRect(px - 4.6 * s, headY, 9.2 * s, 9 * s, 3.2 * s);
+  ctx.fill();
+
+  ctx.fillStyle = vt.color;
+  ctx.beginPath();
+  ctx.arc(px, headY + 2.4 * s, 4.9 * s, Math.PI, 0);
+  ctx.fill();
+  ctx.fillRect(px - 5.6 * s, headY + 1.7 * s, 11.2 * s, 2 * s);
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.fillRect(px - 5.6 * s, headY + 1.7 * s, 11.2 * s, 0.8 * s);
+
+  ctx.fillStyle = '#2a2a33';
+  ctx.fillRect(px - 2.4 * s, headY + 5 * s, 1.3 * s, 1.6 * s);
+  ctx.fillRect(px + 1.2 * s, headY + 5 * s, 1.3 * s, 1.6 * s);
+
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(vt.icon, px, py - 40 * s + Math.sin(v.bob * 0.6) * 1.5);
+}
+
+function drawDayNight() {
+  const night = Math.max(0, 1 - dayPhase * 1.5);
+  if (night <= 0.01) return;
+  ctx.save();
+  ctx.globalCompositeOperation = 'multiply';
+  ctx.fillStyle = 'rgba(46,60,110,' + (night * 0.42) + ')';
+  ctx.fillRect(0, 0, MAP_W, MAP_H);
+  ctx.restore();
+}
+
+/* ============================================================
+   15. 主渲染
+   ============================================================ */
+let canvasW = 0, canvasH = 0;
+
+function resize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvasW = window.innerWidth || document.documentElement.clientWidth || 800;
+  canvasH = window.innerHeight || document.documentElement.clientHeight || 600;
+  canvas.width = Math.floor(canvasW * dpr);
+  canvas.height = Math.floor(canvasH * dpr);
+  canvas.style.width = canvasW + 'px';
+  canvas.style.height = canvasH + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  computeView();
+}
+
+function computeView() {
+  const availW = Math.max(200, canvasW - 20);
+  const availH = Math.max(200, canvasH - 190);
+  const s = Math.min(availW / MAP_W, availH / MAP_H, 1.5);
+  view.scale = Math.max(s, 0.34);
+  view.ox = (canvasW - MAP_W * view.scale) / 2;
+  view.oy = 74 + Math.max(0, (availH - MAP_H * view.scale) / 2);
+}
+
+function render() {
+  ctx.clearRect(0, 0, canvasW, canvasH);
+
+  const bg = ctx.createLinearGradient(0, 0, 0, canvasH);
+  bg.addColorStop(0, '#1c2e3c');
+  bg.addColorStop(1, '#0f1a22');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, canvasW, canvasH);
+
+  ctx.save();
+  ctx.translate(view.ox, view.oy);
+  ctx.scale(view.scale, view.scale);
+
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.55)';
+  ctx.shadowBlur = 26;
+  ctx.fillStyle = '#5d9446';
+  ctx.fillRect(-4, -4, MAP_W + 8, MAP_H + 8);
+  ctx.restore();
+
+  drawGround();
+
+  const items = [];
+
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const cell = grid[y][x];
+      if (cell.decor && !cell.b) {
+        const px = x * TILE, py = y * TILE;
+        const decor = cell.decor;
+        items.push({
+          y: py + TILE,
+          draw: function () {
+            if (decor.type === 'tree') drawTree(px, py, decor.seed);
+            else drawFlower(px, py, decor.seed);
+          }
+        });
+      }
+      if (cell.b) {
+        const px = x * TILE, py = y * TILE;
+        const b = cell.b;
+        items.push({
+          y: py + TILE,
+          draw: function () {
+            drawBuilding(b, px, py);
+            drawStoredBadge(b, px, py);
+          }
+        });
+      }
+    }
+  }
+
+  for (let i = 0; i < npcs.length; i++) {
+    const n = npcs[i];
+    items.push({ y: n.y, draw: function () { drawNPC(n); } });
+  }
+  for (let i = 0; i < volunteers.length; i++) {
+    const v = volunteers[i];
+    items.push({ y: v.y + 0.5, draw: function () { drawVolunteer(v); } });
+  }
+
+  items.sort(function (a, b) { return a.y - b.y; });
+  for (let i = 0; i < items.length; i++) items[i].draw();
+
+  drawDayNight();
+
+  for (let i = 0; i < particles.length; i++) {
+    const p = particles[i];
+    const a = Math.max(0, p.life / p.max);
+    ctx.globalAlpha = a;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size * a, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  for (let i = 0; i < rings.length; i++) {
+    const r = rings[i];
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, r.life / 0.5) * 0.7;
+    ctx.strokeStyle = r.color;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  for (let i = 0; i < floaters.length; i++) {
+    const f = floaters[i];
+    const a = Math.min(1, f.life / f.max * 1.6);
+    ctx.save();
+    ctx.globalAlpha = a;
+    ctx.font = 'bold ' + f.size + 'px "PingFang SC",system-ui,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.lineWidth = 3.5;
+    ctx.strokeStyle = 'rgba(10,20,28,0.85)';
+    ctx.strokeText(f.text, f.x, f.y);
+    ctx.fillStyle = f.color;
+    ctx.fillText(f.text, f.x, f.y);
+    ctx.restore();
+  }
+
+  if (hoverEntity && hoverEntity.kind === 'cell') {
+    const gx = hoverEntity.x, gy = hoverEntity.y;
+    const cell = grid[gy] && grid[gy][gx];
+    if (cell && !cell.b) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([6, 5]);
+      ctx.strokeRect(gx * TILE + 2, gy * TILE + 2, TILE - 4, TILE - 4);
+      ctx.restore();
+    }
+  }
+
+  ctx.restore();
+
+  const vg = ctx.createRadialGradient(
+    canvasW / 2, canvasH / 2, Math.min(canvasW, canvasH) * 0.35,
+    canvasW / 2, canvasH / 2, Math.max(canvasW, canvasH) * 0.78
+  );
+  vg.addColorStop(0, 'rgba(0,0,0,0)');
+  vg.addColorStop(1, 'rgba(0,0,0,0.42)');
+  ctx.fillStyle = vg;
+  ctx.fillRect(0, 0, canvasW, canvasH);
+}
+
+/* ============================================================
+   16. HUD（安全访问 DOM）
+   ============================================================ */
+const resGold = document.getElementById('resGold');
+const resWheat = document.getElementById('resWheat');
+const resWood = document.getElementById('resWood');
+const resPop = document.getElementById('resPop');
+const resHappy = document.getElementById('resHappy');
+
+function setResText(el, text) {
+  if (!el) return;
+  const last = el.lastElementChild;
+  if (last) last.textContent = text;
+}
+
+let hudTimer = 0;
+function updateHUD(dt) {
+  hudTimer += dt;
+  if (hudTimer < 0.09) return;
+  hudTimer = 0;
+
+  setResText(resGold, Math.floor(resources.gold));
+  setResText(resWheat, Math.floor(resources.wheat));
+  setResText(resWood, Math.floor(resources.wood));
+  setResText(resPop, npcs.length + '/' + popCap());
+  setResText(resHappy, happyLevel());
+}
+
+/* ============================================================
+   17. 交互
+   ============================================================ */
+function screenToMap(sx, sy) {
+  return {
+    x: (sx - view.ox) / view.scale,
+    y: (sy - view.oy) / view.scale
+  };
+}
+
+function hitNPC(mx, my) {
+  let best = null, bestD = 1e9;
+  for (let i = 0; i < npcs.length; i++) {
+    const n = npcs[i];
+    const h = 30 * n.scale;
+    const dx = mx - n.x;
+    const dy = my - (n.y - h * 0.5);
+    const d = Math.hypot(dx, dy * 0.85);
+    if (d < 17 * n.scale && d < bestD) { bestD = d; best = n; }
+  }
+  return best;
+}
+
+function canvasPos(e) {
+  const r = canvas.getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+
+canvas.addEventListener('pointerdown', function (e) {
+  e.preventDefault();
+  const p = canvasPos(e);
+  const w = screenToMap(p.x, p.y);
+
+  const n = hitNPC(w.x, w.y);
+  if (n) { greetNPC(n); return; }
+
+  const gx = Math.floor(w.x / TILE);
+  const gy = Math.floor(w.y / TILE);
+  if (gx < 0 || gx >= COLS || gy < 0 || gy >= ROWS) { closeBuildMenu(); return; }
+
+  const cell = grid[gy][gx];
+
+  if (cell.b) {
+    closeBuildMenu();
+    collectFrom(gx, gy);
+    return;
+  }
+
+  if (cell.decor) {
+    closeBuildMenu();
+    toast('这里被占用了');
+    return;
+  }
+
+  openBuildMenu(gx, gy, p.x, p.y);
+});
+
+function collectFrom(gx, gy) {
+  const cell = grid[gy] && grid[gy][gx];
+  if (!cell) return;
+  const b = cell.b;
+  if (!b) return;
+  const def = BTYPES[b.type];
+  if (!def) return;
+
+  if (!def.prod) {
+    toast(def.name + ' · ' + def.desc);
+    return;
+  }
+  if (b.stored <= 0) {
+    toast(def.name + ' 还没有产出');
+    return;
+  }
+  const amount = b.stored;
+  const item = def.prod.item;
+  b.stored = 0;
+  addResource(item, amount);
+
+  const cx = gx * TILE + TILE / 2;
+  const cy = gy * TILE + 6;
+  const iconMap = { wheat: '🌾', wood: '🪵', gold: '💰' };
+  addFloater(cx, cy, '+' + amount + ' ' + iconMap[item], '#ffe089', 15);
+  burstAt(cx, gy * TILE + TILE / 2, item === 'gold' ? '#ffd75e' : '#c8e88a', 10, 130);
+  rings.push({ x: cx, y: gy * TILE + TILE * 0.6, r: 4, max: 34, life: 0.4, color: '#ffe089' });
+  sfx(item === 'gold' ? 740 : 620, 0.09, 'sine', 0.045);
+  refreshManageIfOpen();
+}
+
+/* ---------- 建造菜单 ---------- */
+const buildMenuEl = document.getElementById('buildMenu');
+const bmListEl = document.getElementById('bmList');
+
+function openBuildMenu(gx, gy, sx, sy) {
+  buildMenuCell = { x: gx, y: gy };
+  renderBuildMenu();
+  buildMenuEl.classList.add('show');
+
+  const mw = buildMenuEl.offsetWidth || 268;
+  const mh = buildMenuEl.offsetHeight || 320;
+  let left = sx - mw / 2;
+  let top = sy - mh - 16;
+
+  if (top < 70) top = sy + 26;
+  left = clamp(left, 10, Math.max(10, canvasW - mw - 10));
+  top = clamp(top, 70, Math.max(70, canvasH - mh - 14));
+
+  buildMenuEl.style.left = left + 'px';
+  buildMenuEl.style.top = top + 'px';
+}
+
+function closeBuildMenu() {
+  buildMenuEl.classList.remove('show');
+  buildMenuCell = null;
+}
+
+document.querySelector('#buildMenu .bm-close').addEventListener('click', closeBuildMenu);
+
+function renderBuildMenu() {
+  if (!bmListEl) return;
+  bmListEl.innerHTML = '';
+  for (let i = 0; i < BUILD_ORDER.length; i++) {
+    const key = BUILD_ORDER[i];
+    const def = BTYPES[key];
+    const cost = buildingCost(key);
+    const ok = canAfford(cost);
+
+    const card = document.createElement('div');
+    card.className = 'bcard' + (ok ? '' : ' locked');
+
+    const costParts = [];
+    const iconMap = { gold: '💰', wood: '🪵', wheat: '🌾' };
+    for (const k in cost) {
+      const need = cost[k];
+      const has = resources[k];
+      const cls = has >= need ? '' : 'no';
+      costParts.push('<span class="' + cls + '">' + iconMap[k] + need + '</span>');
+    }
+
+    card.innerHTML =
+      '<div class="bic">' + def.icon + '</div>' +
+      '<div class="binfo"><div class="bname">' + def.name + '</div>' +
+      '<div class="bdesc">' + def.desc + '</div></div>' +
+      '<div class="bcost">' + costParts.join(' ') + '</div>';
+
+    if (ok) {
+      card.addEventListener('click', (function (k) {
+        return function () {
+          if (!buildMenuCell) return;
+          const c = buildMenuCell;
+          if (buildAt(c.x, c.y, k)) closeBuildMenu();
+          else renderBuildMenu();
+        };
+      })(key));
+    } else {
+      card.addEventListener('click', (function (nm) {
+        return function () { toast('资源不足，无法建造 ' + nm); };
+      })(def.name));
+    }
+
+    bmListEl.appendChild(card);
+  }
+}
+
+window.addEventListener('pointerdown', function (e) {
+  if (!buildMenuEl.classList.contains('show')) return;
+  if (buildMenuEl.contains(e.target)) return;
+  if (e.target === canvas) return;
+  closeBuildMenu();
+}, true);
+
+canvas.addEventListener('pointermove', function (e) {
+  const p = canvasPos(e);
+  const w = screenToMap(p.x, p.y);
+  const gx = Math.floor(w.x / TILE);
+  const gy = Math.floor(w.y / TILE);
+  if (gx >= 0 && gx < COLS && gy >= 0 && gy < ROWS) {
+    hoverEntity = { kind: 'cell', x: gx, y: gy };
+    canvas.style.cursor = hitNPC(w.x, w.y) ? 'pointer' : 'crosshair';
+  } else {
+    hoverEntity = null;
+  }
+});
+canvas.addEventListener('pointerleave', function () { hoverEntity = null; });
+canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+/* ---------- toast ---------- */
+const toastEl = document.getElementById('toast');
+let toastTimer = 0;
+function toast(msg, isErr) {
+  if (!toastEl) return;
+  toastEl.textContent = msg;
+  toastEl.classList.toggle('err', !!isErr);
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 1500);
+}
+
+/* ============================================================
+   18. 管理面板（安全渲染）
+   ============================================================ */
+const managePanel = document.getElementById('managePanel');
+const mpBody = document.getElementById('mpBody');
+let mpTab = 'overview';
+
+function openManage() {
+  if (!managePanel) return;
+  managePanel.classList.add('show');
+  renderManagePanel();
+}
+function closeManage() {
+  if (!managePanel) return;
+  managePanel.classList.remove('show');
+}
+
+document.getElementById('btnManage').addEventListener('click', function () {
+  if (!managePanel) return;
+  if (managePanel.classList.contains('show')) closeManage();
+  else openManage();
+});
+document.querySelector('#managePanel .mp-close').addEventListener('click', closeManage);
+
+const tabBtns = document.querySelectorAll('.mp-tabs button');
+for (let i = 0; i < tabBtns.length; i++) {
+  tabBtns[i].addEventListener('click', function () {
+    mpTab = this.dataset.tab;
+    for (let j = 0; j < tabBtns.length; j++) {
+      tabBtns[j].classList.toggle('active', tabBtns[j] === this);
+    }
+    renderManagePanel();
+  });
+}
+
+function renderManagePanel() {
+  if (!mpBody) return;
+  try {
+    if (mpTab === 'overview') renderOverview();
+    else if (mpTab === 'buildings') renderBuildingList();
+    else renderVolunteerList();
+  } catch (e) {
+    console.error('renderManagePanel error', e);
+    mpBody.innerHTML = '<div class="mp-empty" style="color:#ff9b9b">面板加载出错，请刷新页面重试</div>';
+  }
+}
+
+function renderOverview() {
+  let bCount = 0, totalStored = 0;
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const b = grid[y][x].b;
+      if (!b) continue;
+      bCount++;
+      totalStored += b.stored;
+    }
+  }
+
+  let wageTotal = 0;
+  for (let i = 0; i < volunteers.length; i++) {
+    const vt = VOL_TYPES[volunteers[i].type];
+    if (vt) wageTotal += vt.wage;
+  }
+
+  let html = '';
+  html += '<div class="mp-sec-title">小镇概况</div>';
+  html += '<div class="mp-grid">';
+  html += '<div class="mp-stat"><div class="sv">' + npcs.length + ' / ' + popCap() + '</div><div class="sl">居民 / 容量</div></div>';
+  html += '<div class="mp-stat"><div class="sv">' + happyLevel() + '</div><div class="sl">幸福度</div></div>';
+  html += '<div class="mp-stat"><div class="sv">' + bCount + '</div><div class="sl">建筑数量</div></div>';
+  html += '<div class="mp-stat"><div class="sv">' + Math.floor(totalGoldEarned) + '</div><div class="sl">累计金币收入</div></div>';
+  html += '</div>';
+
+  html += '<div class="mp-sec-title">运营状态</div>';
+  html += '<div class="mp-row"><span class="mi">👷</span><div class="minfo">' +
+          '<div class="mn">志愿者 ' + volunteers.length + ' 人</div>' +
+          '<div class="ms">工资合计 ' + wageTotal + ' 💰 / ' + WAGE_PERIOD + '秒</div></div></div>';
+  html += '<div class="mp-row"><span class="mi">📦</span><div class="minfo">' +
+          '<div class="mn">待收取产出</div>' +
+          '<div class="ms">' + totalStored + ' 单位库存</div></div></div>';
+  html += '<div class="mp-row"><span class="mi">⏱️</span><div class="minfo">' +
+          '<div class="mn">游戏时间</div>' +
+          '<div class="ms">' + Math.floor(time) + ' 秒 · 产出倍率 ' + settings.prodSpeedMult.toFixed(1) + 'x</div></div></div>';
+
+  html += '<button class="mp-btn warm" id="mpCollectAll">🧺 一键收取全部产出</button>';
+  html += '<button class="mp-btn" id="mpSaveNow">💾 立即保存进度</button>';
+
+  mpBody.innerHTML = html;
+
+  const btnCollect = document.getElementById('mpCollectAll');
+  if (btnCollect) {
+    btnCollect.addEventListener('click', function () {
+      let total = { gold: 0, wheat: 0, wood: 0 };
+      let count = 0;
+      for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) {
+          const b = grid[y][x].b;
+          if (!b || !BTYPES[b.type] || !BTYPES[b.type].prod || b.stored <= 0) continue;
+          const item = BTYPES[b.type].prod.item;
+          const amt = b.stored;   // 先记录数量！
+          total[item] += amt;
+          addResource(item, amt);
+          b.stored = 0;
+          count++;
+          const cx = x * TILE + TILE / 2, cy = y * TILE + 8;
+          const iconMap = { wheat: '🌾', wood: '🪵', gold: '💰' };
+          addFloater(cx, cy, '+' + amt + ' ' + iconMap[item], '#ffe089', 13);
+        }
+      }
+      if (count === 0) { toast('暂时没有可收取的产出'); return; }
+      const parts = [];
+      if (total.gold) parts.push('💰' + total.gold);
+      if (total.wheat) parts.push('🌾' + total.wheat);
+      if (total.wood) parts.push('🪵' + total.wood);
+      toast('收取完成：' + parts.join(' '));
+      sfx(760, 0.12, 'sine', 0.05);
+      renderManagePanel();
+    });
+  }
+
+  const btnSave = document.getElementById('mpSaveNow');
+  if (btnSave) {
+    btnSave.addEventListener('click', function () { saveGame(false); });
+  }
+}
+
+function renderBuildingList() {
+  let html = '<div class="mp-sec-title">我的建筑</div>';
+  let count = 0;
+
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const b = grid[y][x].b;
+      if (!b) continue;
+      count++;
+      const def = BTYPES[b.type];
+      if (!def) continue;
+      let sub = def.desc;
+      let full = false;
+      let canTake = false;
+      if (def.prod) {
+        const iconMap = { wheat: '🌾', wood: '🪵', gold: '💰' };
+        sub = iconMap[def.prod.item] + ' ' + b.stored + ' / ' + def.prod.cap;
+        full = b.stored >= def.prod.cap;
+        canTake = b.stored > 0;
+      }
+      html += '<div class="mp-row">' +
+              '<span class="mi">' + def.icon + '</span>' +
+              '<div class="minfo"><div class="mn">' + def.name + ' <span style="color:rgba(160,195,215,.45);font-weight:400;font-size:10.5px">(' + x + ',' + y + ')</span></div>' +
+              '<div class="ms' + (full ? ' full' : '') + '">' + sub + '</div></div>' +
+              '<button class="mp-mini" data-take="' + x + ',' + y + '"' + (canTake ? '' : ' disabled') + '>收取</button>' +
+              '</div>';
+    }
+  }
+
+  if (count === 0) {
+    html += '<div class="mp-empty">还没有任何建筑<br>点击地图上的空地开始建造吧</div>';
+  }
+
+  mpBody.innerHTML = html;
+
+  const btns = mpBody.querySelectorAll('[data-take]');
+  for (let i = 0; i < btns.length; i++) {
+    btns[i].addEventListener('click', function () {
+      const parts = this.dataset.take.split(',');
+      collectFrom(parseInt(parts[0], 10), parseInt(parts[1], 10));
+      renderManagePanel();
+    });
+  }
+}
+
+function renderVolunteerList() {
+  let html = '';
+
+  html += '<div class="mp-sec-title">我的志愿者 (' + volunteers.length + ')</div>';
+
+  if (volunteers.length === 0) {
+    html += '<div class="mp-empty">还没有志愿者<br>雇佣他们可以自动收取建筑产出</div>';
+  } else {
+    for (let i = 0; i < volunteers.length; i++) {
+      const v = volunteers[i];
+      const vt = VOL_TYPES[v.type];
+      if (!vt) continue;
+      const nextPay = Math.max(0, Math.ceil(v.payTimer));
+      html += '<div class="mp-row">' +
+              '<span class="mi">' + vt.icon + '</span>' +
+              '<div class="minfo"><div class="mn">' + vt.name + '</div>' +
+              '<div class="ms">工资 ' + vt.wage + '💰 / ' + WAGE_PERIOD + '秒 · ' + nextPay + '秒后结算</div></div>' +
+              '<button class="mp-mini danger" data-fire="' + i + '">解雇</button>' +
+              '</div>';
+    }
+  }
+
+  html += '<div class="mp-sec-title">可招募</div>';
+
+  for (let i = 0; i < VOL_ORDER.length; i++) {
+    const key = VOL_ORDER[i];
+    const vt = VOL_TYPES[key];
+    const can = resources.gold >= vt.hire;
+    html += '<div class="mp-row">' +
+            '<span class="mi">' + vt.icon + '</span>' +
+            '<div class="minfo"><div class="mn">' + vt.name + '</div>' +
+            '<div class="ms">' + vt.desc + '</div></div>' +
+            '<button class="mp-mini ' + (can ? 'gold' : '') + '" data-hire="' + key + '"' + (can ? '' : ' disabled') + '>招募 ' + vt.hire + '💰</button>' +
+            '</div>';
+  }
+
+  html += '<div class="mp-empty" style="padding-top:14px;font-size:11px">' +
+          '志愿者每 ' + WAGE_PERIOD + ' 秒自动结算一次工资<br>金币不足时会离开小镇' +
+          '</div>';
+
+  mpBody.innerHTML = html;
+
+  const hires = mpBody.querySelectorAll('[data-hire]');
+  for (let i = 0; i < hires.length; i++) {
+    hires[i].addEventListener('click', function () {
+      hireVolunteer(this.dataset.hire);
+    });
+  }
+
+  const fires = mpBody.querySelectorAll('[data-fire]');
+  for (let i = 0; i < fires.length; i++) {
+    fires[i].addEventListener('click', function () {
+      fireVolunteer(parseInt(this.dataset.fire, 10));
+    });
+  }
+}
+
+/* ============================================================
+   19. 设置面板
+   ============================================================ */
+const settingsModal = document.getElementById('settingsModal');
+const setStartGold = document.getElementById('setStartGold');
+const setCostMult = document.getElementById('setCostMult');
+const setProdMult = document.getElementById('setProdMult');
+const setNpcMult = document.getElementById('setNpcMult');
+const vStartGold = document.getElementById('vStartGold');
+const vCostMult = document.getElementById('vCostMult');
+const vProdMult = document.getElementById('vProdMult');
+const vNpcMult = document.getElementById('vNpcMult');
+
+function syncSettingsUI() {
+  if (setStartGold) setStartGold.value = settings.startGold;
+  if (setCostMult) setCostMult.value = settings.costMult;
+  if (setProdMult) setProdMult.value = settings.prodSpeedMult;
+  if (setNpcMult) setNpcMult.value = settings.npcSpeedMult;
+  if (vStartGold) vStartGold.textContent = Math.round(settings.startGold);
+  if (vCostMult) vCostMult.textContent = settings.costMult.toFixed(1) + 'x';
+  if (vProdMult) vProdMult.textContent = settings.prodSpeedMult.toFixed(1) + 'x';
+  if (vNpcMult) vNpcMult.textContent = settings.npcSpeedMult.toFixed(1) + 'x';
+}
+syncSettingsUI();
+
+if (setStartGold) setStartGold.addEventListener('input', function () { if (vStartGold) vStartGold.textContent = this.value; });
+if (setCostMult) setCostMult.addEventListener('input', function () { if (vCostMult) vCostMult.textContent = parseFloat(this.value).toFixed(1) + 'x'; });
+if (setProdMult) setProdMult.addEventListener('input', function () { if (vProdMult) vProdMult.textContent = parseFloat(this.value).toFixed(1) + 'x'; });
+if (setNpcMult) setNpcMult.addEventListener('input', function () { if (vNpcMult) vNpcMult.textContent = parseFloat(this.value).toFixed(1) + 'x'; });
+
+function openSettings() {
+  syncSettingsUI();
+  if (settingsModal) settingsModal.classList.add('show');
+}
+function closeSettings() {
+  if (settingsModal) settingsModal.classList.remove('show');
+}
+
+document.getElementById('btnSettings').addEventListener('click', openSettings);
+document.querySelector('#settingsModal .sm-close').addEventListener('click', closeSettings);
+if (settingsModal) {
+  settingsModal.addEventListener('click', function (e) {
+    if (e.target === settingsModal) closeSettings();
+  });
+}
+
+document.getElementById('btnApplySettings').addEventListener('click', function () {
+  settings.startGold = parseInt(setStartGold.value, 10) || 320;
+  settings.costMult = parseFloat(setCostMult.value) || 1;
+  settings.prodSpeedMult = parseFloat(setProdMult.value) || 1;
+  settings.npcSpeedMult = parseFloat(setNpcMult.value) || 1;
+  persistSettings();
+
+  if (buildMenuEl.classList.contains('show')) renderBuildMenu();
+  refreshManageIfOpen();
+  saveGame(true);
+  toast('设置已保存');
+  closeSettings();
+});
+
+document.getElementById('btnResetTown').addEventListener('click', function () {
+  if (!confirm('确定要重置小镇吗？当前进度将被清空。')) return;
+  settings.startGold = parseInt(setStartGold.value, 10) || 320;
+  settings.costMult = parseFloat(setCostMult.value) || 1;
+  settings.prodSpeedMult = parseFloat(setProdMult.value) || 1;
+  settings.npcSpeedMult = parseFloat(setNpcMult.value) || 1;
+  persistSettings();
+
+  resetGame();
+  saveGame(true);
+  closeSettings();
+  toast('小镇已重置，开始新的旅程吧');
+});
+
+/* ============================================================
+   20. 存档系统（安全 localStorage）
+   ============================================================ */
+function bRound(n) { return Math.round(n * 100) / 100; }
+
+function serializeWorld() {
+  const gridData = [];
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const c = grid[y][x];
+      if (!c.b && !c.decor && c.ground === 0) continue;
+      gridData.push([
+        x, y,
+        c.ground,
+        c.b ? c.b.type : '',
+        c.b ? bRound(c.b.stored) : 0,
+        c.b ? bRound(c.b.timer) : 0,
+        c.decor ? c.decor.type : ''
+      ]);
+    }
+  }
+
+  return {
+    v: 2,
+    time: bRound(time),
+    resources: {
+      gold: Math.floor(resources.gold),
+      wheat: Math.floor(resources.wheat),
+      wood: Math.floor(resources.wood)
+    },
+    houses: houses,
+    fountains: fountains,
+    totalGoldEarned: Math.floor(totalGoldEarned),
+    settings: Object.assign({}, settings),
+    grid: gridData,
+    volunteers: volunteers.map(function (v) {
+      return { type: v.type, x: Math.round(v.x), y: Math.round(v.y) };
+    })
+  };
+}
+
+function saveGame(silent) {
+  const ok = safeSetItem(SAVE_KEY, JSON.stringify(serializeWorld()));
+  if (ok) {
+    if (!silent) toast('进度已保存 💾');
+  } else {
+    if (!silent) toast('保存失败：存储空间不足', true);
+  }
+  return ok;
+}
+
+function loadGame() {
+  try {
+    const raw = safeGetItem(SAVE_KEY);
+    if (!raw) { toast('没有找到存档', true); return false; }
+    const d = JSON.parse(raw);
+    if (!d || (d.v !== 1 && d.v !== 2)) { toast('存档版本不兼容', true); return false; }
+
+    resources.gold = (d.resources && d.resources.gold) || 0;
+    resources.wheat = (d.resources && d.resources.wheat) || 0;
+    resources.wood = (d.resources && d.resources.wood) || 0;
+    houses = d.houses || 0;
+    fountains = d.fountains || 0;
+    totalGoldEarned = d.totalGoldEarned || 0;
+    time = d.time || 0;
+    dayPhase = (Math.sin(time * 0.045 - Math.PI / 2) + 1) / 2;
+
+    if (d.settings) {
+      settings = Object.assign({}, DEFAULT_SETTINGS, d.settings);
+      persistSettings();
+      syncSettingsUI();
+    }
+
+    grid = emptyGrid();
+    const gd = d.grid || [];
+    for (let i = 0; i < gd.length; i++) {
+      const ent = gd[i];
+      const x = ent[0], y = ent[1];
+      if (x < 0 || x >= COLS || y < 0 || y >= ROWS) continue;
+      const c = grid[y][x];
+      c.ground = ent[2] || 0;
+      if (ent[3] && BTYPES[ent[3]]) {
+        c.b = {
+          type: ent[3],
+          stored: ent[4] || 0,
+          timer: ent[5] || 0,
+          bob: Math.random() * 6.28,
+          smoke: 0,
+          born: 0
+        };
+      }
+      if (ent[6]) {
+        c.decor = { type: ent[6], seed: Math.random() * 1000 };
+      }
+    }
+
+    volunteers = [];
+    const vd = d.volunteers || [];
+    for (let i = 0; i < vd.length; i++) {
+      const v = vd[i];
+      if (!VOL_TYPES[v.type]) continue;
+      volunteers.push({
+        type: v.type,
+        x: v.x, y: v.y,
+        tx: v.x, ty: v.y,
+        state: 'idle',
+        timer: rand(0.5, 1.5),
+        target: null,
+        bob: Math.random() * 6.28,
+        facing: 1,
+        payTimer: WAGE_PERIOD
+      });
+    }
+
+    npcs = [];
+    particles = [];
+    floaters = [];
+    rings = [];
+    autoSaveTimer = 0;
+    lastVolCount = -1;
+
+    updateVolDot();
+    refreshManageIfOpen();
+    return true;
+  } catch (e) {
+    console.error('loadGame error', e);
+    toast('读取存档失败', true);
+    return false;
+  }
+}
+
+document.getElementById('btnSave').addEventListener('click', function () {
+  saveGame(false);
+  this.blur();
+});
+
+/* ============================================================
+   21. 主循环
+   ============================================================ */
+let lastTime = 0;
+
+function loop(now) {
+  if (!lastTime) lastTime = now;
+  const dt = Math.min((now - lastTime) / 1000, 0.05);
+  lastTime = now;
+
+  try {
+    update(dt);
+    render();
+    updateHUD(dt);
+  } catch (e) {
+    console.error('loop error', e);
+  }
+
+  requestAnimationFrame(loop);
+}
+
+/* ============================================================
+   22. 启动（全面容错）
+   ============================================================ */
+function boot() {
+  if (!canvas || !ctx) {
+    alert('画布初始化失败，请使用现代浏览器打开。');
+    return;
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+
+  // 安全读取存档状态
+  let hasSave = false;
+  try { hasSave = !!safeGetItem(SAVE_KEY); } catch (e) { hasSave = false; }
+
+  if (hasSave) {
+    let ok = false;
+    try { ok = loadGame(); } catch (e) { ok = false; }
+    if (!ok) resetGame();
+  } else {
+    resetGame();
+  }
+
+  setTimeout(function () {
+    const tipEl = document.getElementById('tip');
+    if (tipEl) tipEl.innerHTML =
+      '开局建议：先建 <b>麦田</b> 和 <b>伐木场</b>，攒材料后开 <b>面包坊</b> 🍞';
+  }, 3000);
+  setTimeout(function () {
+    const tipEl = document.getElementById('tip');
+    if (tipEl) tipEl.innerHTML =
+      '点击 <b>空地</b> 建造 · 点击 <b>建筑</b> 收获 · 点击 <b>居民</b> 打招呼 · 右侧 📋 管理小镇';
+  }, 11000);
+
+  lastTime = 0;
+  requestAnimationFrame(loop);
+}
+
+try {
+  boot();
+} catch (e) {
+  console.error('boot failed', e);
+  if (errBanner) {
+    errBanner.textContent = '⚠ 启动失败: ' + (e.message || '未知错误');
+    errBanner.style.display = 'block';
+  }
+}
+
+})();
+</script>
+</body>
+</html>
