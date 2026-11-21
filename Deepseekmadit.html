@@ -11,33 +11,31 @@
     user-select:none}
   #game{display:block;position:fixed;inset:0;touch-action:none;cursor:pointer}
 
-  /* ---------- 顶部资源栏 ---------- */
   #hud{
     position:fixed;left:50%;top:12px;transform:translateX(-50%);
-    display:flex;gap:6px;padding:7px 10px;border-radius:14px;
+    display:flex;gap:5px;padding:7px 9px;border-radius:14px;
     background:rgba(20,32,42,.82);backdrop-filter:blur(14px);
     border:1px solid rgba(150,210,235,.16);
     box-shadow:0 8px 28px rgba(0,0,0,.4);
-    z-index:10;white-space:nowrap;
+    z-index:10;white-space:nowrap;max-width:96vw;overflow-x:auto;
   }
-  .res{display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:9px;
-    background:rgba(255,255,255,.05);font-size:14px;color:#dff0fa;font-weight:600;
-    font-variant-numeric:tabular-nums;transition:transform .15s,background .15s}
-  .res .ic{font-size:15px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
+  #hud::-webkit-scrollbar{display:none}
+  .res{display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:9px;
+    background:rgba(255,255,255,.05);font-size:13.5px;color:#dff0fa;font-weight:600;
+    font-variant-numeric:tabular-nums;transition:transform .15s,background .15s;flex-shrink:0}
+  .res .ic{font-size:14px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
   .res.bump{transform:scale(1.14);background:rgba(255,215,94,.16)}
 
-  /* ---------- 底部提示 ---------- */
   #tip{
     position:fixed;left:50%;bottom:14px;transform:translateX(-50%);
     padding:9px 20px;border-radius:11px;font-size:12.5px;color:rgba(200,225,240,.72);
     background:rgba(20,32,42,.8);backdrop-filter:blur(10px);
     border:1px solid rgba(150,210,235,.12);z-index:10;
-    text-align:center;max-width:min(88vw,520px);line-height:1.55;
+    text-align:center;max-width:min(90vw,560px);line-height:1.55;
     transition:opacity .4s;
   }
   #tip b{color:#7de3c4;font-weight:600}
 
-  /* ---------- 右侧按钮 ---------- */
   #sideBtns{
     position:fixed;right:12px;bottom:78px;display:flex;flex-direction:column;gap:7px;z-index:20;
   }
@@ -58,21 +56,24 @@
   }
   .tbtn .dot.show{display:block}
 
-  /* ---------- 建造菜单 ---------- */
   #buildMenu{
-    position:fixed;z-index:30;width:268px;padding:10px;
-    border-radius:15px;background:rgba(18,29,38,.95);backdrop-filter:blur(18px);
+    position:fixed;z-index:30;width:272px;padding:10px;
+    border-radius:15px;background:rgba(18,29,38,.96);backdrop-filter:blur(18px);
     border:1px solid rgba(150,210,235,.2);
     box-shadow:0 18px 50px rgba(0,0,0,.55);
     opacity:0;pointer-events:none;transform:scale(.94) translateY(6px);
     transform-origin:center;transition:opacity .16s,transform .16s;
+    max-height:min(66vh,540px);display:flex;flex-direction:column;
   }
   #buildMenu.show{opacity:1;pointer-events:auto;transform:scale(1) translateY(0)}
   #buildMenu .bm-head{display:flex;justify-content:space-between;align-items:center;
-    padding:2px 6px 9px;font-size:12px;color:rgba(180,210,228,.65);letter-spacing:.05em}
+    padding:2px 6px 9px;font-size:12px;color:rgba(180,210,228,.65);letter-spacing:.05em;flex-shrink:0}
   #buildMenu .bm-close{cursor:pointer;font-size:16px;color:rgba(180,210,228,.6);
     padding:0 4px;line-height:1;transition:color .15s}
   #buildMenu .bm-close:hover{color:#ff8a8a}
+  #bmList{overflow-y:auto;scrollbar-width:thin;padding-right:2px}
+  #bmList::-webkit-scrollbar{width:5px}
+  #bmList::-webkit-scrollbar-thumb{background:rgba(150,210,235,.22);border-radius:3px}
   .bcard{
     display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:10px;
     cursor:pointer;transition:background .13s,transform .1s;
@@ -82,17 +83,16 @@
   .bcard:active{transform:scale(.97)}
   .bcard.locked{opacity:.42;cursor:not-allowed}
   .bcard.locked:hover{background:rgba(255,80,80,.06);border-color:rgba(255,120,120,.2)}
-  .bcard .bic{font-size:22px;width:32px;text-align:center;
-    filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))}
+  .bcard .bic{font-size:21px;width:30px;text-align:center;
+    filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));flex-shrink:0}
   .bcard .binfo{flex:1;min-width:0}
-  .bcard .bname{font-size:13.5px;color:#e6f3fb;font-weight:600}
-  .bcard .bdesc{font-size:11px;color:rgba(160,195,215,.65);margin-top:1px;
+  .bcard .bname{font-size:13px;color:#e6f3fb;font-weight:600}
+  .bcard .bdesc{font-size:10.5px;color:rgba(160,195,215,.65);margin-top:1px;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .bcard .bcost{font-size:11.5px;color:#ffd75e;font-weight:600;
-    text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .bcard .bcost{font-size:11px;color:#ffd75e;font-weight:600;
+    text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;flex-shrink:0}
   .bcard .bcost .no{color:#ff7d7d}
 
-  /* ---------- 管理面板 ---------- */
   #managePanel{
     position:fixed;right:0;top:0;bottom:0;width:352px;max-width:90vw;
     background:rgba(15,24,32,.97);backdrop-filter:blur(22px);
@@ -145,7 +145,7 @@
   .mp-btn.warm:hover{background:rgba(255,215,94,.22)}
 
   .mp-row{
-    display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:10px;
+    display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:10px;
     background:rgba(255,255,255,.035);border:1px solid rgba(150,210,235,.07);
     margin-bottom:7px;transition:.13s;
   }
@@ -155,8 +155,9 @@
   .mp-row .mn{font-size:12.5px;color:#e0eefa;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .mp-row .ms{font-size:11px;color:rgba(160,195,215,.6);margin-top:1px}
   .mp-row .ms.full{color:#ffd75e}
+  .mp-btngroup{display:flex;gap:5px;flex-shrink:0}
   .mp-mini{
-    font:inherit;font-size:11px;padding:6px 11px;border-radius:8px;cursor:pointer;flex-shrink:0;
+    font:inherit;font-size:11px;padding:6px 10px;border-radius:8px;cursor:pointer;flex-shrink:0;
     background:rgba(125,227,196,.14);border:1px solid rgba(125,227,196,.35);color:#7de3c4;
     transition:.13s;font-weight:600;
   }
@@ -168,7 +169,6 @@
   .mp-mini.gold:hover{background:rgba(255,215,94,.24)}
   .mp-empty{text-align:center;padding:26px 10px;font-size:12px;color:rgba(160,195,215,.45);line-height:1.7}
 
-  /* ---------- 设置弹窗 ---------- */
   #settingsModal{
     position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
     background:rgba(6,12,18,.62);backdrop-filter:blur(5px);
@@ -176,11 +176,14 @@
   }
   #settingsModal.show{opacity:1;pointer-events:auto}
   .sm-box{
-    width:min(400px,92vw);border-radius:18px;overflow:hidden;
+    width:min(408px,92vw);max-height:92vh;overflow-y:auto;border-radius:18px;
     background:rgba(18,29,38,.98);border:1px solid rgba(150,210,235,.2);
     box-shadow:0 26px 70px rgba(0,0,0,.65);
     transform:translateY(12px) scale(.97);transition:transform .22s;
+    scrollbar-width:thin;
   }
+  .sm-box::-webkit-scrollbar{width:6px}
+  .sm-box::-webkit-scrollbar-thumb{background:rgba(150,210,235,.2);border-radius:3px}
   #settingsModal.show .sm-box{transform:translateY(0) scale(1)}
   .sm-head{display:flex;align-items:center;justify-content:space-between;
     padding:15px 18px 12px;font-size:15px;font-weight:700;color:#e6f3fb;
@@ -191,9 +194,9 @@
   .sm-body{padding:14px 18px 6px}
   .sm-row{margin-bottom:16px}
   .sm-label{font-size:12.5px;color:#cfe4f0;margin-bottom:7px;font-weight:600;
-    display:flex;justify-content:space-between;align-items:center}
+    display:flex;justify-content:space-between;align-items:center;gap:8px}
   .sm-label em{font-style:normal;font-size:10.5px;color:rgba(160,195,215,.55);font-weight:400}
-  .sm-label .sm-val{color:#7de3c4;font-variant-numeric:tabular-nums}
+  .sm-label .sm-val{color:#7de3c4;font-variant-numeric:tabular-nums;flex-shrink:0}
   input[type=range]{
     -webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:3px;
     background:rgba(255,255,255,.11);outline:none;cursor:pointer;
@@ -207,6 +210,15 @@
   input[type=range]::-moz-range-thumb{
     width:15px;height:15px;border-radius:50%;background:#7de3c4;border:2px solid #102028;cursor:pointer;
   }
+  .mode-switch{display:flex;gap:6px}
+  .mode-switch button{
+    flex:1;font:inherit;font-size:12px;padding:9px 4px;border-radius:9px;cursor:pointer;
+    background:rgba(255,255,255,.05);border:1px solid rgba(150,210,235,.16);
+    color:rgba(170,200,220,.75);transition:.15s;
+  }
+  .mode-switch button:hover{background:rgba(255,255,255,.09)}
+  .mode-switch button.active{background:rgba(125,227,196,.16);border-color:rgba(125,227,196,.42);color:#7de3c4;font-weight:600}
+  .mode-hint{font-size:10.5px;color:rgba(160,195,215,.5);margin-top:6px;line-height:1.55}
   .sm-foot{display:flex;gap:8px;padding:8px 18px 18px}
   .sm-foot button{
     flex:1;font:inherit;font-size:13px;font-weight:600;padding:11px;border-radius:10px;cursor:pointer;
@@ -217,7 +229,6 @@
   .btn-primary{background:rgba(125,227,196,.16);border:1px solid rgba(125,227,196,.42);color:#7de3c4}
   .btn-primary:hover{background:rgba(125,227,196,.26)}
 
-  /* ---------- toast ---------- */
   #toast{
     position:fixed;left:50%;top:20%;transform:translate(-50%,8px);
     padding:10px 22px;border-radius:11px;font-size:13.5px;font-weight:600;
@@ -229,7 +240,6 @@
   #toast.show{opacity:1;transform:translate(-50%,0)}
   #toast.err{color:#ff9b9b;border-color:rgba(255,120,120,.4)}
 
-  /* ---------- 全局错误提示 ---------- */
   #errBanner{
     position:fixed;left:50%;bottom:14px;transform:translateX(-50%);
     padding:10px 18px;border-radius:10px;font-size:12px;font-family:monospace;
@@ -239,9 +249,9 @@
   }
 
   @media (max-width:520px){
-    .res{font-size:12px;padding:3px 7px;gap:3px}
-    .res .ic{font-size:13px}
-    #buildMenu{width:min(268px,92vw)}
+    .res{font-size:12px;padding:3px 6px;gap:3px}
+    .res .ic{font-size:12px}
+    #buildMenu{width:min(272px,92vw)}
     #tip{font-size:11.5px;padding:7px 14px}
     .tbtn{width:40px;height:40px;font-size:17px}
     #sideBtns{bottom:70px;right:10px;gap:6px}
@@ -255,6 +265,7 @@
   <div class="res" id="resGold"><span class="ic">💰</span><span>0</span></div>
   <div class="res" id="resWheat"><span class="ic">🌾</span><span>0</span></div>
   <div class="res" id="resWood"><span class="ic">🪵</span><span>0</span></div>
+  <div class="res" id="resOre"><span class="ic">🪨</span><span>0</span></div>
   <div class="res" id="resPop"><span class="ic">👥</span><span>0/2</span></div>
   <div class="res" id="resHappy"><span class="ic">😊</span><span>0</span></div>
 </div>
@@ -265,15 +276,13 @@
   <button class="tbtn" id="btnSave" title="保存">💾</button>
 </div>
 
-<div id="tip">点击 <b>空地</b> 建造 · 点击 <b>建筑</b> 收获 · 点击 <b>居民</b> 打招呼</div>
+<div id="tip">点击 <b>空地</b> 建造 · 点击 <b>建筑</b> 收获 · 长按或右键建筑可 <b>拆除</b> · 点击 <b>居民</b> 打招呼</div>
 
-<!-- 建造菜单 -->
 <div id="buildMenu">
   <div class="bm-head"><span>建造建筑</span><span class="bm-close">✕</span></div>
   <div id="bmList"></div>
 </div>
 
-<!-- 管理面板 -->
 <div id="managePanel">
   <div class="mp-head"><span>🏘️ 小镇管理</span><span class="mp-close">✕</span></div>
   <div class="mp-tabs">
@@ -284,13 +293,12 @@
   <div id="mpBody"></div>
 </div>
 
-<!-- 设置 -->
 <div id="settingsModal">
   <div class="sm-box">
     <div class="sm-head"><span>⚙️ 游戏设置</span><span class="sm-close">✕</span></div>
     <div class="sm-body">
       <div class="sm-row">
-        <div class="sm-label">初始金币 <em>（重置小镇后生效）</em><span class="sm-val" id="vStartGold">320</span></div>
+        <div class="sm-label">初始金币 <em>（重置后生效）</em><span class="sm-val" id="vStartGold">320</span></div>
         <input type="range" id="setStartGold" min="100" max="3000" step="50" value="320">
       </div>
       <div class="sm-row">
@@ -304,6 +312,17 @@
       <div class="sm-row">
         <div class="sm-label">居民 / 志愿者速度<span class="sm-val" id="vNpcMult">1.0x</span></div>
         <input type="range" id="setNpcMult" min="0.5" max="2.5" step="0.1" value="1">
+      </div>
+
+      <div class="sm-row" style="border-top:1px solid rgba(150,210,235,.1);padding-top:14px">
+        <div class="sm-label">志愿者薪资模式</div>
+        <div class="mode-switch" id="volModeSwitch">
+          <button type="button" data-mode="wage">按周期发工资</button>
+          <button type="button" data-mode="buyout">一次性买断</button>
+        </div>
+        <div class="mode-hint" id="volModeHint">
+          每 20 秒支付一次工资，金币不足时志愿者会离开。
+        </div>
       </div>
     </div>
     <div class="sm-foot">
@@ -321,7 +340,7 @@
 'use strict';
 
 /* ============================================================
-   0. 全局错误提示（方便定位问题）
+   0. 全局错误提示
    ============================================================ */
 const errBanner = document.getElementById('errBanner');
 let errHideTimer = 0;
@@ -339,8 +358,11 @@ window.addEventListener('error', function (e) {
 const COLS = 18, ROWS = 12, TILE = 64;
 const MAP_W = COLS * TILE, MAP_H = ROWS * TILE;
 
-const SAVE_KEY = 'littleTownSave_v2';
-const SETTINGS_KEY = 'littleTownSettings_v2';
+const SAVE_KEY = 'littleTownSave_v3';
+const SETTINGS_KEY = 'littleTownSettings_v3';
+
+const REFUND_RATE = 0.6;   // 拆除返还比例
+const LONG_PRESS_MS = 500; // 长按拆除阈值
 
 const canvas = document.getElementById('game');
 const ctx = canvas ? canvas.getContext('2d') : null;
@@ -372,23 +394,25 @@ function sfx(freq, dur, type, vol) {
   } catch (e) {}
 }
 
-/* ============================================================
-   2. 设置系统（安全 localStorage）
-   ============================================================ */
-const DEFAULT_SETTINGS = {
-  startGold: 320,
-  costMult: 1.0,
-  prodSpeedMult: 1.0,
-  npcSpeedMult: 1.0
-};
-let settings = Object.assign({}, DEFAULT_SETTINGS);
-
+/* ---------- 存储 ---------- */
 function safeGetItem(key) {
   try { return localStorage.getItem(key); } catch (e) { return null; }
 }
 function safeSetItem(key, val) {
   try { localStorage.setItem(key, val); return true; } catch (e) { return false; }
 }
+
+/* ============================================================
+   2. 设置系统
+   ============================================================ */
+const DEFAULT_SETTINGS = {
+  startGold: 320,
+  costMult: 1.0,
+  prodSpeedMult: 1.0,
+  npcSpeedMult: 1.0,
+  volunteerMode: 'wage'
+};
+let settings = Object.assign({}, DEFAULT_SETTINGS);
 
 function loadSettings() {
   try {
@@ -397,6 +421,7 @@ function loadSettings() {
       settings = Object.assign({}, DEFAULT_SETTINGS, s);
     }
   } catch (e) {}
+  if (settings.volunteerMode !== 'buyout') settings.volunteerMode = 'wage';
 }
 function persistSettings() {
   safeSetItem(SETTINGS_KEY, JSON.stringify(settings));
@@ -410,48 +435,79 @@ const BTYPES = {
   farm: {
     name: '麦田', icon: '🌾', desc: '缓慢产出小麦',
     cost: { gold: 50 },
-    prod: { item: 'wheat', amount: 1, interval: 6, cap: 4 },
-    color: '#c8b060'
+    prod: { item: 'wheat', amount: 1, interval: 6, cap: 4 }
   },
   lumber: {
     name: '伐木场', icon: '🪵', desc: '砍伐树木产出木材',
     cost: { gold: 70 },
-    prod: { item: 'wood', amount: 1, interval: 6, cap: 4 },
-    color: '#8a6a3e'
+    prod: { item: 'wood', amount: 1, interval: 6, cap: 4 }
+  },
+  mine: {
+    name: '矿场', icon: '⛏️', desc: '开采矿石',
+    cost: { gold: 130, wood: 10 },
+    prod: { item: 'ore', amount: 1, interval: 7, cap: 4 }
   },
   bakery: {
     name: '面包坊', icon: '🍞', desc: '消耗小麦，烤出金币',
     cost: { gold: 150, wood: 10 },
     cons: { item: 'wheat', amount: 1 },
-    prod: { item: 'gold', amount: 16, interval: 5.5, cap: 48 },
-    color: '#e0a050'
+    prod: { item: 'gold', amount: 16, interval: 5.5, cap: 48 }
+  },
+  tavern: {
+    name: '酒馆', icon: '🍺', desc: '消耗小麦与矿石，赚大钱',
+    cost: { gold: 260, wood: 20, ore: 8 },
+    cons: { item: 'wheat', amount: 1 },
+    prod: { item: 'gold', amount: 34, interval: 6.5, cap: 102 }
   },
   shop: {
     name: '杂货铺', icon: '🏪', desc: '居民会进来消费',
     cost: { gold: 200, wood: 15 },
-    prod: { item: 'gold', amount: 11, interval: 5, cap: 44 },
-    color: '#4a9ec9'
+    prod: { item: 'gold', amount: 11, interval: 5, cap: 44 }
   },
   house: {
     name: '民居', icon: '🏠', desc: '吸引新居民入住',
     cost: { gold: 120, wood: 20 },
-    prod: null, pop: 2,
-    color: '#c95a4a'
+    prod: null, pop: 2
+  },
+  warehouse: {
+    name: '仓库', icon: '📦', desc: '所有建筑库存上限 +2',
+    cost: { gold: 160, wood: 25 },
+    prod: null, capBonus: 2
   },
   fountain: {
     name: '喷泉', icon: '⛲', desc: '提升全镇幸福度',
     cost: { gold: 180, wood: 10 },
-    prod: null, happy: 1,
-    color: '#5ac9c9'
+    prod: null, happy: 1
+  },
+  park: {
+    name: '公园', icon: '🌳', desc: '居民休闲，幸福度 +1',
+    cost: { gold: 220, wood: 15 },
+    prod: null, happy: 1
+  },
+  school: {
+    name: '学校', icon: '🏫', desc: '幸福度 +1，人口上限 +2',
+    cost: { gold: 320, wood: 30, ore: 6 },
+    prod: null, happy: 1, pop: 2
   }
 };
-const BUILD_ORDER = ['farm', 'lumber', 'bakery', 'shop', 'house', 'fountain'];
+const BUILD_ORDER = [
+  'farm', 'lumber', 'mine', 'bakery', 'tavern', 'shop',
+  'house', 'warehouse', 'fountain', 'park', 'school'
+];
+
+const ICON_MAP = { gold: '💰', wood: '🪵', wheat: '🌾', ore: '🪨' };
 
 function buildingCost(type) {
   const c = BTYPES[type].cost;
   const out = {};
   for (const k in c) out[k] = Math.max(1, Math.round(c[k] * settings.costMult));
   return out;
+}
+
+function prodCap(b) {
+  const def = BTYPES[b.type];
+  if (!def || !def.prod) return 0;
+  return def.prod.cap + warehouses * 2;
 }
 
 /* ============================================================
@@ -491,24 +547,36 @@ const VOL_TYPES = {
     specs: ['lumber'], wage: 15, hire: 100,
     desc: '专精伐木场，自动收取木材'
   },
+  miner: {
+    name: '矿工志愿者', icon: '⛏️', color: '#9aa4b0',
+    specs: ['mine'], wage: 18, hire: 130,
+    desc: '专精矿场，自动收取矿石'
+  },
   merchant: {
     name: '商贩志愿者', icon: '💰', color: '#f0c040',
-    specs: ['shop', 'bakery'], wage: 22, hire: 160,
+    specs: ['shop', 'bakery', 'tavern'], wage: 24, hire: 180,
     desc: '专精店铺，自动收取金币'
   },
   allround: {
     name: '全能志愿者', icon: '⭐', color: '#7de3c4',
-    specs: null, wage: 36, hire: 280,
+    specs: null, wage: 38, hire: 300,
     desc: '任何建筑的产出都能收取'
   }
 };
-const VOL_ORDER = ['harvester', 'lumberjack', 'merchant', 'allround'];
+const VOL_ORDER = ['harvester', 'lumberjack', 'miner', 'merchant', 'allround'];
 const WAGE_PERIOD = 20;
+const BUYOUT_MULT = 3.5;
+
+function volHireCost(vt) {
+  return settings.volunteerMode === 'buyout'
+    ? Math.round(vt.hire * BUYOUT_MULT)
+    : vt.hire;
+}
 
 /* ============================================================
    6. 游戏状态
    ============================================================ */
-const resources = { gold: 320, wheat: 0, wood: 0 };
+const resources = { gold: 320, wheat: 0, wood: 0, ore: 0 };
 
 let grid = [];
 let npcs = [];
@@ -521,6 +589,7 @@ let time = 0;
 let dayPhase = 0;
 let houses = 0;
 let fountains = 0;
+let warehouses = 0;
 let totalGoldEarned = 0;
 
 let spawnTimer = 2.0;
@@ -528,6 +597,9 @@ let buildMenuCell = null;
 let hoverEntity = null;
 let autoSaveTimer = 0;
 let lastVolCount = -1;
+
+/* 长按拆除状态 */
+let pressInfo = null;   // { gx, gy, startTime, fired, timer }
 
 const view = { scale: 1, ox: 0, oy: 0 };
 
@@ -559,6 +631,7 @@ function initMap() {
   grid = emptyGrid();
   houses = 0;
   fountains = 0;
+  warehouses = 0;
 
   for (let x = 0; x < COLS; x++) grid[6][x].ground = 1;
   for (let y = 0; y < ROWS; y++) grid[y][9].ground = 1;
@@ -585,7 +658,6 @@ function initMap() {
   }
 }
 
-/* 安全刷新管理面板（仅当面板已打开） */
 function refreshManageIfOpen() {
   if (managePanel && managePanel.classList.contains('show')) {
     try { renderManagePanel(); } catch (e) { console.error('manage render', e); }
@@ -596,6 +668,7 @@ function resetGame() {
   resources.gold = settings.startGold;
   resources.wheat = 0;
   resources.wood = 0;
+  resources.ore = 0;
   totalGoldEarned = 0;
   time = 0;
   dayPhase = 0;
@@ -607,6 +680,7 @@ function resetGame() {
   spawnTimer = 2;
   autoSaveTimer = 0;
   lastVolCount = -1;
+  pressInfo = null;
   initMap();
   updateVolDot();
   refreshManageIfOpen();
@@ -635,7 +709,7 @@ function addResource(key, amount) {
 
 let bumpTimers = {};
 function bumpHud(key) {
-  const map = { gold: 'resGold', wheat: 'resWheat', wood: 'resWood' };
+  const map = { gold: 'resGold', wheat: 'resWheat', wood: 'resWood', ore: 'resOre' };
   const el = document.getElementById(map[key]);
   if (!el) return;
   el.classList.add('bump');
@@ -644,7 +718,7 @@ function bumpHud(key) {
 }
 
 /* ============================================================
-   9. 建造
+   9. 建造 / 拆除
    ============================================================ */
 function buildAt(gx, gy, type) {
   const cell = grid[gy] && grid[gy][gx];
@@ -659,6 +733,7 @@ function buildAt(gx, gy, type) {
   cell.b = newBuilding(type);
   if (def.pop) houses += def.pop;
   if (def.happy) fountains += def.happy;
+  if (def.capBonus) warehouses += 1;
 
   const cx = gx * TILE + TILE / 2, cy = gy * TILE + TILE;
   for (let i = 0; i < 22; i++) {
@@ -672,6 +747,75 @@ function buildAt(gx, gy, type) {
 
   sfx(520, 0.16, 'triangle', 0.06);
   toast(def.name + ' 建造完成');
+  refreshManageIfOpen();
+  return true;
+}
+
+/* ---------- 拆除建筑 ---------- */
+function demolishBuilding(gx, gy) {
+  const cell = grid[gy] && grid[gy][gx];
+  if (!cell || !cell.b) return false;
+  const b = cell.b;
+  const def = BTYPES[b.type];
+  if (!def) return false;
+
+  /* 计算返还与库存文本 */
+  const cost = buildingCost(b.type);
+  const refundLines = [];
+  for (const k in cost) {
+    const back = Math.floor(cost[k] * REFUND_RATE);
+    if (back > 0) refundLines.push(ICON_MAP[k] + back);
+  }
+
+  const hasStock = def.prod && b.stored > 0;
+  let msg = '确定要拆除「' + def.name + '」吗？\n\n';
+  msg += '返还约 ' + Math.round(REFUND_RATE * 100) + '% 建造资源：' + (refundLines.join(' ') || '无');
+  if (hasStock) {
+    msg += '\n库存产出（' + Math.floor(b.stored) + ' ' + ICON_MAP[def.prod.item] + '）会一并收取';
+  }
+  if (!confirm(msg)) return false;
+
+  /* 收取库存 */
+  if (hasStock) {
+    const amt = b.stored;
+    addResource(def.prod.item, amt);
+    addFloater(gx * TILE + TILE / 2, gy * TILE + 6,
+      '+' + amt + ' ' + ICON_MAP[def.prod.item], '#ffe089', 13);
+  }
+
+  /* 返还资源 */
+  for (const k in cost) {
+    const back = Math.floor(cost[k] * REFUND_RATE);
+    if (back > 0) addResource(k, back);
+  }
+
+  /* 移除建筑 */
+  cell.b = null;
+  if (def.pop) houses -= def.pop;
+  if (def.happy) fountains -= def.happy;
+  if (def.capBonus) warehouses -= 1;
+  if (houses < 0) houses = 0;
+  if (fountains < 0) fountains = 0;
+  if (warehouses < 0) warehouses = 0;
+
+  /* 特效 */
+  const cx = gx * TILE + TILE / 2;
+  const cy = gy * TILE + TILE / 2;
+  for (let i = 0; i < 28; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const sp = rand(40, 230);
+    particles.push({
+      x: cx + rand(-14, 14), y: cy + rand(-14, 14),
+      vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 70,
+      life: 0.7, max: 0.7, size: rand(2, 5), color: '#ffb878'
+    });
+  }
+  rings.push({ x: cx, y: cy, r: 6, max: 74, life: 0.5, color: '#ffb878' });
+
+  sfx(260, 0.24, 'sawtooth', 0.05);
+  toast('已拆除「' + def.name + '」' +
+    (refundLines.length ? ' · 返还 ' + refundLines.join(' ') : ''));
+
   refreshManageIfOpen();
   return true;
 }
@@ -698,7 +842,7 @@ function spawnNPC() {
       const b = grid[y][x].b;
       if (!b) continue;
       const item = { x: x, y: y, b: b };
-      if (b.type === 'shop' || b.type === 'bakery') shops.push(item);
+      if (b.type === 'shop' || b.type === 'bakery' || b.type === 'tavern') shops.push(item);
       else others.push(item);
     }
   }
@@ -774,8 +918,9 @@ function updateVolDot() {
 function hireVolunteer(type) {
   const vt = VOL_TYPES[type];
   if (!vt) return;
-  if (resources.gold < vt.hire) { toast('金币不足，无法招募', true); return; }
-  resources.gold -= vt.hire;
+  const cost = volHireCost(vt);
+  if (resources.gold < cost) { toast('金币不足，无法招募', true); return; }
+  resources.gold -= cost;
 
   const spots = [[9, 6], [8, 6], [10, 6], [9, 5], [9, 7], [8, 5]];
   const sp = pick(spots);
@@ -804,6 +949,7 @@ function fireVolunteer(index) {
   const v = volunteers[index];
   if (!v) return;
   const vt = VOL_TYPES[v.type];
+  if (!vt) return;
   addFloater(v.x, v.y - 40, '再见…', '#ff9b9b', 12);
   volunteers.splice(index, 1);
   toast(vt.name + ' 离开了小镇');
@@ -813,6 +959,7 @@ function fireVolunteer(index) {
 
 function volFindTarget(v) {
   const vt = VOL_TYPES[v.type];
+  if (!vt) return null;
   const specs = vt.specs;
   const candidates = [];
 
@@ -822,7 +969,7 @@ function volFindTarget(v) {
       if (!b) continue;
       if (specs && specs.indexOf(b.type) < 0) continue;
       const def = BTYPES[b.type];
-      if (!def.prod) continue;
+      if (!def || !def.prod) continue;
       if (b.stored <= 0) continue;
 
       let claimed = false;
@@ -850,25 +997,25 @@ function updateVolunteers(dt) {
 
     v.bob += dt * (v.state === 'walk' ? 9 : 2);
 
-    /* 工资结算 */
-    v.payTimer -= dt;
-    if (v.payTimer <= 0) {
-      v.payTimer = WAGE_PERIOD;
-      if (resources.gold >= vt.wage) {
-        resources.gold -= vt.wage;
-        addFloater(v.x, v.y - 42, '-' + vt.wage + ' 💰', '#ff9b9b', 12);
-        bumpHud('gold');
-      } else {
-        addFloater(v.x, v.y - 42, '工资不足…', '#ff9b9b', 12);
-        toast(vt.name + ' 因工资不足离开了小镇', true);
-        volunteers.splice(i, 1);
-        updateVolDot();
-        refreshManageIfOpen();
-        continue;
+    if (settings.volunteerMode !== 'buyout') {
+      v.payTimer -= dt;
+      if (v.payTimer <= 0) {
+        v.payTimer = WAGE_PERIOD;
+        if (resources.gold >= vt.wage) {
+          resources.gold -= vt.wage;
+          addFloater(v.x, v.y - 42, '-' + vt.wage + ' 💰', '#ff9b9b', 12);
+          bumpHud('gold');
+        } else {
+          addFloater(v.x, v.y - 42, '工资不足…', '#ff9b9b', 12);
+          toast(vt.name + ' 因工资不足离开了小镇', true);
+          volunteers.splice(i, 1);
+          updateVolDot();
+          refreshManageIfOpen();
+          continue;
+        }
       }
     }
 
-    /* 行为 */
     if (v.state === 'idle') {
       v.timer -= dt;
       if (v.timer <= 0) {
@@ -913,15 +1060,16 @@ function updateVolunteers(dt) {
           const b = cell && cell.b;
           if (b && b.stored > 0) {
             const def = BTYPES[b.type];
-            const amt = b.stored;
-            b.stored = 0;
-            addResource(def.prod.item, amt);
-            const iconMap = { wheat: '🌾', wood: '🪵', gold: '💰' };
-            const cx = t.gx * TILE + TILE / 2;
-            const cy = t.gy * TILE + 4;
-            addFloater(cx, cy, '+' + amt + ' ' + iconMap[def.prod.item], '#c8f0a0', 12);
-            burstAt(cx, t.gy * TILE + TILE * 0.6, '#c8f0a0', 8, 90);
-            sfx(700, 0.07, 'sine', 0.03);
+            if (def && def.prod) {
+              const amt = b.stored;
+              b.stored = 0;
+              addResource(def.prod.item, amt);
+              const cx = t.gx * TILE + TILE / 2;
+              const cy = t.gy * TILE + 4;
+              addFloater(cx, cy, '+' + amt + ' ' + ICON_MAP[def.prod.item], '#c8f0a0', 12);
+              burstAt(cx, t.gy * TILE + TILE * 0.6, '#c8f0a0', 8, 90);
+              sfx(700, 0.07, 'sine', 0.03);
+            }
           }
         }
       }
@@ -962,19 +1110,19 @@ function updateBuildings(dt) {
       if (!def) continue;
       b.bob += dt * 2;
       if (!def.prod) continue;
-      const p = def.prod;
 
-      if (b.stored >= p.cap) { b.timer = 0; continue; }
+      const cap = prodCap(b);
+      if (b.stored >= cap) { b.timer = 0; continue; }
 
       if (def.cons) {
         if (resources[def.cons.item] < def.cons.amount) continue;
       }
 
       b.timer += dt * mult;
-      if (b.timer >= p.interval) {
+      if (b.timer >= def.prod.interval) {
         b.timer = 0;
         if (def.cons) resources[def.cons.item] -= def.cons.amount;
-        b.stored = Math.min(p.cap, b.stored + p.amount);
+        b.stored = Math.min(cap, b.stored + def.prod.amount);
         if (def.cons) b.smoke = 0.8;
       }
     }
@@ -1016,10 +1164,11 @@ function updateNPCs(dt) {
             if (!b) continue;
             const def = BTYPES[b.type];
             if (!def || !def.prod || def.prod.item !== 'gold') continue;
-            if (b.stored >= def.prod.cap) continue;
+            const cap = prodCap(b);
+            if (b.stored >= cap) continue;
 
             const gain = Math.round(rand(2, 5) * n.type.tip);
-            b.stored = Math.min(def.prod.cap, b.stored + gain);
+            b.stored = Math.min(cap, b.stored + gain);
             addFloater(gx * TILE + TILE / 2, gy * TILE - 4, '+' + gain, '#ffe089', 12);
             found = true;
           }
@@ -1208,7 +1357,73 @@ function drawShadow(px, py, w) {
   ctx.fill();
 }
 
-/* ---------- 建筑 ---------- */
+function drawHouseBase(px, py, opt) {
+  const cx = px + TILE / 2;
+  const wallW = TILE * 0.64;
+  const wallH = TILE * 0.40;
+  const wallX = cx - wallW / 2;
+  const wallY = py + TILE * 0.48;
+
+  ctx.fillStyle = opt.wall;
+  roundRect(wallX, wallY, wallW, wallH, 3);
+  ctx.fill();
+
+  ctx.fillStyle = 'rgba(0,0,0,0.07)';
+  for (let i = 0; i < 3; i++) ctx.fillRect(wallX + 4, wallY + 8 + i * 8, wallW - 8, 1);
+
+  const roofTop = wallY - TILE * 0.27;
+  ctx.fillStyle = opt.roof;
+  ctx.beginPath();
+  ctx.moveTo(cx - wallW / 2 - 6, wallY + 3);
+  ctx.lineTo(cx, roofTop);
+  ctx.lineTo(cx + wallW / 2 + 6, wallY + 3);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = 'rgba(255,255,255,0.18)';
+  ctx.beginPath();
+  ctx.moveTo(cx - wallW / 2 - 6, wallY + 3);
+  ctx.lineTo(cx, roofTop);
+  ctx.lineTo(cx - 2, roofTop + 4);
+  ctx.lineTo(cx - wallW / 2 - 2, wallY + 3);
+  ctx.closePath();
+  ctx.fill();
+
+  const dw = 12, dh = 16;
+  ctx.fillStyle = opt.door || '#6b4a2e';
+  roundRect(cx - dw / 2, wallY + wallH - dh, dw, dh, 2);
+  ctx.fill();
+  ctx.fillStyle = '#ffd75e';
+  ctx.beginPath();
+  ctx.arc(cx + dw / 2 - 3, wallY + wallH - dh / 2, 1.3, 0, Math.PI * 2);
+  ctx.fill();
+
+  return { wallX: wallX, wallY: wallY, wallW: wallW, wallH: wallH, cx: cx, roofTop: roofTop };
+}
+
+function drawWindow(x, y, w, h, glow) {
+  ctx.fillStyle = glow ? 'rgba(255,224,150,0.92)' : '#9fd3e8';
+  roundRect(x, y, w, h, 2);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(80,60,40,0.55)';
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x + w / 2, y);
+  ctx.lineTo(x + w / 2, y + h);
+  ctx.stroke();
+  if (glow) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const g = ctx.createRadialGradient(x + w / 2, y + h / 2, 0, x + w / 2, y + h / 2, w * 1.6);
+    g.addColorStop(0, 'rgba(255,220,140,0.32)');
+    g.addColorStop(1, 'rgba(255,220,140,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(x - w, y - h, w * 3, h * 3);
+    ctx.restore();
+  }
+}
+
 function drawFarm(b, px, py) {
   ctx.fillStyle = '#8a6a42';
   roundRect(px + 6, py + 16, TILE - 12, TILE - 26, 6);
@@ -1286,91 +1501,65 @@ function drawLumber(b, px, py) {
   ctx.fill();
 }
 
-function drawHouseBase(px, py, opt) {
+function drawMine(b, px, py) {
   const cx = px + TILE / 2;
-  const wallW = TILE * 0.64;
-  const wallH = TILE * 0.40;
-  const wallX = cx - wallW / 2;
-  const wallY = py + TILE * 0.48;
+  const baseY = py + TILE - 10;
 
-  ctx.fillStyle = opt.wall;
-  roundRect(wallX, wallY, wallW, wallH, 3);
-  ctx.fill();
-
-  ctx.fillStyle = 'rgba(0,0,0,0.07)';
-  for (let i = 0; i < 3; i++) ctx.fillRect(wallX + 4, wallY + 8 + i * 8, wallW - 8, 1);
-
-  const roofTop = wallY - TILE * 0.27;
-  ctx.fillStyle = opt.roof;
+  ctx.fillStyle = '#8a8a94';
   ctx.beginPath();
-  ctx.moveTo(cx - wallW / 2 - 6, wallY + 3);
-  ctx.lineTo(cx, roofTop);
-  ctx.lineTo(cx + wallW / 2 + 6, wallY + 3);
+  ctx.moveTo(px + 8, baseY);
+  ctx.lineTo(px + 20, py + 24);
+  ctx.lineTo(px + 30, py + 18);
+  ctx.lineTo(px + 44, py + 26);
+  ctx.lineTo(px + TILE - 8, baseY);
   ctx.closePath();
   ctx.fill();
 
-  ctx.fillStyle = 'rgba(255,255,255,0.18)';
+  ctx.fillStyle = 'rgba(255,255,255,0.13)';
   ctx.beginPath();
-  ctx.moveTo(cx - wallW / 2 - 6, wallY + 3);
-  ctx.lineTo(cx, roofTop);
-  ctx.lineTo(cx - 2, roofTop + 4);
-  ctx.lineTo(cx - wallW / 2 - 2, wallY + 3);
+  ctx.moveTo(px + 20, py + 24);
+  ctx.lineTo(px + 30, py + 18);
+  ctx.lineTo(px + 34, py + 28);
+  ctx.lineTo(px + 24, py + 32);
   ctx.closePath();
   ctx.fill();
 
-  const dw = 12, dh = 16;
-  ctx.fillStyle = opt.door || '#6b4a2e';
-  roundRect(cx - dw / 2, wallY + wallH - dh, dw, dh, 2);
-  ctx.fill();
-  ctx.fillStyle = '#ffd75e';
+  ctx.fillStyle = 'rgba(245,197,66,0.85)';
+  ctx.fillRect(px + 34, py + 32, 3, 3);
+  ctx.fillRect(px + 40, py + 40, 2.5, 2.5);
+  ctx.fillRect(px + 26, py + 38, 2, 2);
+
+  ctx.fillStyle = '#22252c';
   ctx.beginPath();
-  ctx.arc(cx + dw / 2 - 3, wallY + wallH - dh / 2, 1.3, 0, Math.PI * 2);
+  ctx.moveTo(cx - 10, baseY);
+  ctx.lineTo(cx - 10, baseY - 10);
+  ctx.quadraticCurveTo(cx, baseY - 22, cx + 10, baseY - 10);
+  ctx.lineTo(cx + 10, baseY);
+  ctx.closePath();
   ctx.fill();
 
-  return { wallX: wallX, wallY: wallY, wallW: wallW, wallH: wallH, cx: cx, roofTop: roofTop };
-}
+  ctx.fillStyle = 'rgba(255,200,90,0.10)';
+  ctx.fillRect(cx - 6, baseY - 8, 12, 8);
 
-function drawWindow(x, y, w, h, glow) {
-  ctx.fillStyle = glow ? 'rgba(255,224,150,0.92)' : '#9fd3e8';
-  roundRect(x, y, w, h, 2);
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(80,60,40,0.55)';
-  ctx.lineWidth = 1.4;
-  ctx.stroke();
+  ctx.strokeStyle = '#6e4f2e';
+  ctx.lineWidth = 2.4;
   ctx.beginPath();
-  ctx.moveTo(x + w / 2, y);
-  ctx.lineTo(x + w / 2, y + h);
+  ctx.moveTo(cx - 12, baseY);
+  ctx.lineTo(cx - 12, baseY - 14);
+  ctx.lineTo(cx + 12, baseY - 14);
+  ctx.lineTo(cx + 12, baseY);
   ctx.stroke();
-  if (glow) {
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-    const g = ctx.createRadialGradient(x + w / 2, y + h / 2, 0, x + w / 2, y + h / 2, w * 1.6);
-    g.addColorStop(0, 'rgba(255,220,140,0.32)');
-    g.addColorStop(1, 'rgba(255,220,140,0)');
-    ctx.fillStyle = g;
-    ctx.fillRect(x - w, y - h, w * 3, h * 3);
-    ctx.restore();
-  }
-}
 
-function drawHouse(b, px, py) {
-  const info = drawHouseBase(px, py, { wall: '#e8dcc8', roof: '#c95a4a', door: '#7a4a2e' });
-  const night = dayPhase < 0.35;
-  drawWindow(info.wallX + 7, info.wallY + 8, 12, 11, night);
-  drawWindow(info.wallX + info.wallW - 19, info.wallY + 8, 12, 11, night);
-
-  ctx.fillStyle = '#9a8a7a';
-  ctx.fillRect(info.cx + 12, info.roofTop + 6, 8, 14);
-  ctx.fillStyle = '#7a6a5a';
-  ctx.fillRect(info.cx + 12, info.roofTop + 6, 8, 3);
-
-  const t = (time * 0.7 + b.bob) % 3;
-  if (t < 1.6) {
-    ctx.fillStyle = 'rgba(230,235,240,' + (0.4 * (1 - t / 1.6)) + ')';
-    ctx.beginPath();
-    ctx.arc(info.cx + 16, info.roofTop - t * 10, 3 + t * 3.5, 0, Math.PI * 2);
-    ctx.fill();
-  }
+  ctx.fillStyle = '#5a6068';
+  roundRect(px + 10, baseY - 4, 12, 7, 2);
+  ctx.fill();
+  ctx.fillStyle = '#8a929a';
+  ctx.fillRect(px + 11, baseY - 4, 10, 2);
+  ctx.fillStyle = '#2a2e34';
+  ctx.beginPath();
+  ctx.arc(px + 13, baseY + 4, 2, 0, Math.PI * 2);
+  ctx.arc(px + 19, baseY + 4, 2, 0, Math.PI * 2);
+  ctx.fill();
 }
 
 function drawBakery(b, px, py) {
@@ -1418,6 +1607,51 @@ function drawBakery(b, px, py) {
   }
 }
 
+function drawTavern(b, px, py) {
+  const info = drawHouseBase(px, py, { wall: '#c9a06a', roof: '#7a4a2e', door: '#4a2e18' });
+  const night = dayPhase < 0.35;
+
+  drawWindow(info.wallX + 6, info.wallY + 9, 12, 10, true);
+  drawWindow(info.wallX + info.wallW - 18, info.wallY + 9, 12, 10, true);
+
+  ctx.strokeStyle = '#4a3a28';
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.moveTo(info.cx + 14, info.roofTop + 6);
+  ctx.lineTo(info.cx + 14, info.roofTop + 13);
+  ctx.stroke();
+
+  ctx.fillStyle = '#4a3a28';
+  roundRect(info.cx + 6, info.roofTop + 13, 17, 14, 3);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,220,150,0.6)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  ctx.font = '9px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('🍺', info.cx + 14.5, info.roofTop + 20);
+
+  ctx.fillStyle = '#8a5a30';
+  roundRect(px + 8, py + TILE - 22, 11, 14, 3);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(0,0,0,0.2)';
+  ctx.fillRect(px + 8, py + TILE - 17, 11, 1.6);
+  ctx.fillRect(px + 8, py + TILE - 13, 11, 1.6);
+
+  if (night) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const g = ctx.createRadialGradient(info.cx, info.wallY + 12, 0, info.cx, info.wallY + 12, 52);
+    g.addColorStop(0, 'rgba(255,170,80,0.26)');
+    g.addColorStop(1, 'rgba(255,170,80,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(info.cx - 52, info.wallY - 40, 104, 104);
+    ctx.restore();
+  }
+}
+
 function drawShop(b, px, py) {
   const info = drawHouseBase(px, py, { wall: '#cfe4ee', roof: '#4a9ec9', door: '#3a6a86' });
   const night = dayPhase < 0.35;
@@ -1447,6 +1681,85 @@ function drawShop(b, px, py) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('SHOP', info.cx, info.roofTop + 13);
+}
+
+function drawHouse(b, px, py) {
+  const info = drawHouseBase(px, py, { wall: '#e8dcc8', roof: '#c95a4a', door: '#7a4a2e' });
+  const night = dayPhase < 0.35;
+  drawWindow(info.wallX + 7, info.wallY + 8, 12, 11, night);
+  drawWindow(info.wallX + info.wallW - 19, info.wallY + 8, 12, 11, night);
+
+  ctx.fillStyle = '#9a8a7a';
+  ctx.fillRect(info.cx + 12, info.roofTop + 6, 8, 14);
+  ctx.fillStyle = '#7a6a5a';
+  ctx.fillRect(info.cx + 12, info.roofTop + 6, 8, 3);
+
+  const t = (time * 0.7 + b.bob) % 3;
+  if (t < 1.6) {
+    ctx.fillStyle = 'rgba(230,235,240,' + (0.4 * (1 - t / 1.6)) + ')';
+    ctx.beginPath();
+    ctx.arc(info.cx + 16, info.roofTop - t * 10, 3 + t * 3.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawWarehouse(b, px, py) {
+  const cx = px + TILE / 2;
+  const baseY = py + TILE - 10;
+
+  ctx.fillStyle = '#b08356';
+  roundRect(px + 8, py + 24, TILE - 16, TILE - 34, 3);
+  ctx.fill();
+
+  ctx.fillStyle = 'rgba(0,0,0,0.10)';
+  for (let i = 0; i < 4; i++) {
+    ctx.fillRect(px + 10, py + 30 + i * 8, TILE - 20, 1.4);
+  }
+
+  ctx.fillStyle = '#6e4f2e';
+  ctx.beginPath();
+  ctx.moveTo(px + 4, py + 25);
+  ctx.lineTo(cx, py + 10);
+  ctx.lineTo(px + TILE - 4, py + 25);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.14)';
+  ctx.beginPath();
+  ctx.moveTo(px + 4, py + 25);
+  ctx.lineTo(cx, py + 10);
+  ctx.lineTo(cx - 3, py + 14);
+  ctx.lineTo(px + 7, py + 25);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = '#7a5230';
+  roundRect(cx - 11, py + 38, 22, 20, 2);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,0.22)';
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(cx, py + 38);
+  ctx.lineTo(cx, py + 58);
+  ctx.stroke();
+
+  const boxes = [
+    { x: px + 10, y: baseY - 6, s: 9 },
+    { x: px + 19, y: baseY - 6, s: 8 },
+    { x: px + 14, y: baseY - 14, s: 8 }
+  ];
+  for (let i = 0; i < boxes.length; i++) {
+    const o = boxes[i];
+    ctx.fillStyle = '#d9a860';
+    roundRect(o.x, o.y, o.s, o.s, 1.6);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(110,79,46,0.6)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(o.x, o.y + o.s / 2);
+    ctx.lineTo(o.x + o.s, o.y + o.s / 2);
+    ctx.stroke();
+  }
 }
 
 function drawFountain(b, px, py) {
@@ -1494,26 +1807,159 @@ function drawFountain(b, px, py) {
   }
 }
 
+function drawMiniTree(x, y, s) {
+  ctx.fillStyle = 'rgba(30,60,30,0.2)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 1, 8 * s, 3 * s, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#7a5230';
+  ctx.fillRect(x - 1.5 * s, y - 9 * s, 3 * s, 9 * s);
+
+  ctx.fillStyle = '#3f8b34';
+  ctx.beginPath();
+  ctx.arc(x, y - 15 * s, 9 * s, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#4b9c40';
+  ctx.beginPath();
+  ctx.arc(x - 5 * s, y - 12 * s, 6 * s, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#357a2c';
+  ctx.beginPath();
+  ctx.arc(x + 5 * s, y - 12 * s, 5.5 * s, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(190,240,150,0.30)';
+  ctx.beginPath();
+  ctx.arc(x - 2 * s, y - 17 * s, 4 * s, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawPark(b, px, py) {
+  const cx = px + TILE / 2;
+  const groundY = py + TILE - 12;
+
+  ctx.fillStyle = '#8fc86a';
+  ctx.beginPath();
+  ctx.ellipse(cx, groundY, 27, 14, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = '#e0d3ae';
+  ctx.lineWidth = 3.5;
+  ctx.beginPath();
+  ctx.ellipse(cx, groundY, 15, 7.5, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.fillStyle = '#e8b04a';
+  ctx.beginPath();
+  ctx.ellipse(cx, groundY, 6, 3.2, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  drawMiniTree(cx - 18, groundY - 1, 0.62);
+  drawMiniTree(cx + 18, groundY - 2, 0.52);
+
+  ctx.fillStyle = '#a67c4a';
+  ctx.fillRect(cx - 5, groundY + 2, 10, 2.4);
+  ctx.fillStyle = '#8a6438';
+  ctx.fillRect(cx - 5, groundY + 5, 1.6, 3);
+  ctx.fillRect(cx + 3.4, groundY + 5, 1.6, 3);
+
+  const bt = time * 2.4 + b.bob;
+  const bx = cx + Math.cos(bt) * 16;
+  const by = groundY - 22 + Math.sin(bt * 1.6) * 6;
+  ctx.fillStyle = 'rgba(255,180,220,0.85)';
+  const flap = Math.abs(Math.sin(time * 8));
+  ctx.beginPath();
+  ctx.ellipse(bx - 2.2, by, 2.2 * flap + 1, 2.2, -0.4, 0, Math.PI * 2);
+  ctx.ellipse(bx + 2.2, by, 2.2 * flap + 1, 2.2, 0.4, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawSchool(b, px, py) {
+  const info = drawHouseBase(px, py, { wall: '#f0e6d2', roof: '#5a8fc9', door: '#4a5a6a' });
+  const night = dayPhase < 0.35;
+
+  drawWindow(info.wallX + 4, info.wallY + 8, 10, 9, night);
+  drawWindow(info.wallX + info.wallW / 2 - 5, info.wallY + 8, 10, 9, night);
+  drawWindow(info.wallX + info.wallW - 14, info.wallY + 8, 10, 9, night);
+
+  const tw = 12;
+  const tx = info.cx - tw / 2;
+  const ty = info.roofTop - 8;
+  ctx.fillStyle = '#e8e0cc';
+  roundRect(tx, ty, tw, 11, 2);
+  ctx.fill();
+  ctx.fillStyle = '#8a3a2a';
+  ctx.beginPath();
+  ctx.moveTo(tx - 2, ty);
+  ctx.lineTo(info.cx, ty - 7);
+  ctx.lineTo(tx + tw + 2, ty);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#fff8e0';
+  ctx.beginPath();
+  ctx.arc(info.cx, ty + 5.5, 3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#5a4a30';
+  ctx.lineWidth = 0.9;
+  ctx.beginPath();
+  ctx.moveTo(info.cx, ty + 5.5);
+  ctx.lineTo(info.cx, ty + 3.4);
+  ctx.moveTo(info.cx, ty + 5.5);
+  ctx.lineTo(info.cx + 1.6, ty + 6.2);
+  ctx.stroke();
+
+  ctx.strokeStyle = '#8a929a';
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.moveTo(px + 13, py + 32);
+  ctx.lineTo(px + 13, py + 12);
+  ctx.stroke();
+  const wave = Math.sin(time * 3 + b.bob) * 1.6;
+  ctx.fillStyle = '#e85a5a';
+  ctx.beginPath();
+  ctx.moveTo(px + 13, py + 12);
+  ctx.lineTo(px + 24 + wave, py + 15.5);
+  ctx.lineTo(px + 13, py + 19);
+  ctx.closePath();
+  ctx.fill();
+
+  if (night) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const g = ctx.createRadialGradient(info.cx, info.wallY + 12, 0, info.cx, info.wallY + 12, 48);
+    g.addColorStop(0, 'rgba(255,220,140,0.20)');
+    g.addColorStop(1, 'rgba(255,220,140,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(info.cx - 48, info.wallY - 34, 96, 96);
+    ctx.restore();
+  }
+}
+
 function drawBuilding(b, px, py) {
   drawShadow(px, py, b.type === 'fountain' ? 26 : TILE * 0.38);
   switch (b.type) {
     case 'farm': drawFarm(b, px, py); break;
     case 'lumber': drawLumber(b, px, py); break;
+    case 'mine': drawMine(b, px, py); break;
     case 'bakery': drawBakery(b, px, py); break;
+    case 'tavern': drawTavern(b, px, py); break;
     case 'shop': drawShop(b, px, py); break;
     case 'house': drawHouse(b, px, py); break;
+    case 'warehouse': drawWarehouse(b, px, py); break;
     case 'fountain': drawFountain(b, px, py); break;
+    case 'park': drawPark(b, px, py); break;
+    case 'school': drawSchool(b, px, py); break;
   }
 }
 
 function drawStoredBadge(b, px, py) {
   const def = BTYPES[b.type];
   if (!def || !def.prod || b.stored <= 0) return;
-  const full = b.stored >= def.prod.cap;
+  const cap = prodCap(b);
+  const full = b.stored >= cap;
   const bobY = full ? Math.sin(time * 6) * 2.5 : 0;
 
-  const iconMap = { wheat: '🌾', wood: '🪵', gold: '💰' };
-  const txt = iconMap[def.prod.item] + ' ' + b.stored;
+  const txt = ICON_MAP[def.prod.item] + ' ' + Math.floor(b.stored);
 
   ctx.save();
   ctx.font = 'bold 11px "PingFang SC",system-ui,sans-serif';
@@ -1534,7 +1980,6 @@ function drawStoredBadge(b, px, py) {
   ctx.restore();
 }
 
-/* ---------- NPC / 志愿者 ---------- */
 function drawNPC(n) {
   const s = n.scale;
   const px = n.x, py = n.y;
@@ -1670,6 +2115,11 @@ function drawVolunteer(v) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(vt.icon, px, py - 40 * s + Math.sin(v.bob * 0.6) * 1.5);
+  if (settings.volunteerMode === 'buyout') {
+    ctx.font = '8px sans-serif';
+    ctx.fillStyle = '#7de3c4';
+    ctx.fillText('◆', px, py - 49 * s + Math.sin(v.bob * 0.6) * 1.5);
+  }
 }
 
 function drawDayNight() {
@@ -1813,6 +2263,7 @@ function render() {
     ctx.restore();
   }
 
+  /* 悬停高亮（空地） */
   if (hoverEntity && hoverEntity.kind === 'cell') {
     const gx = hoverEntity.x, gy = hoverEntity.y;
     const cell = grid[gy] && grid[gy][gx];
@@ -1822,6 +2273,28 @@ function render() {
       ctx.lineWidth = 2.5;
       ctx.setLineDash([6, 5]);
       ctx.strokeRect(gx * TILE + 2, gy * TILE + 2, TILE - 4, TILE - 4);
+      ctx.restore();
+    }
+  }
+
+  /* 长按拆除进度环 */
+  if (pressInfo && pressInfo.timer && !pressInfo.fired) {
+    const elapsed = (performance.now() - pressInfo.startTime) / LONG_PRESS_MS;
+    if (elapsed > 0 && elapsed < 1.5) {
+      const cx = pressInfo.gx * TILE + TILE / 2;
+      const cy = pressInfo.gy * TILE + TILE / 2;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(40,20,20,0.45)';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 26, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,120,100,0.95)';
+      ctx.lineWidth = 5;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.arc(cx, cy, 26, -Math.PI / 2, -Math.PI / 2 + Math.min(1, elapsed) * Math.PI * 2);
+      ctx.stroke();
       ctx.restore();
     }
   }
@@ -1839,11 +2312,12 @@ function render() {
 }
 
 /* ============================================================
-   16. HUD（安全访问 DOM）
+   16. HUD
    ============================================================ */
 const resGold = document.getElementById('resGold');
 const resWheat = document.getElementById('resWheat');
 const resWood = document.getElementById('resWood');
+const resOre = document.getElementById('resOre');
 const resPop = document.getElementById('resPop');
 const resHappy = document.getElementById('resHappy');
 
@@ -1862,6 +2336,7 @@ function updateHUD(dt) {
   setResText(resGold, Math.floor(resources.gold));
   setResText(resWheat, Math.floor(resources.wheat));
   setResText(resWood, Math.floor(resources.wood));
+  setResText(resOre, Math.floor(resources.ore));
   setResText(resPop, npcs.length + '/' + popCap());
   setResText(resHappy, happyLevel());
 }
@@ -1894,33 +2369,138 @@ function canvasPos(e) {
   return { x: e.clientX - r.left, y: e.clientY - r.top };
 }
 
+function clearPressInfo() {
+  if (pressInfo && pressInfo.timer) {
+    clearTimeout(pressInfo.timer);
+  }
+  pressInfo = null;
+}
+
 canvas.addEventListener('pointerdown', function (e) {
+  /* 右键由 contextmenu 处理 */
+  if (e.button === 2) return;
+
   e.preventDefault();
+
   const p = canvasPos(e);
   const w = screenToMap(p.x, p.y);
 
+  /* NPC 优先 */
   const n = hitNPC(w.x, w.y);
-  if (n) { greetNPC(n); return; }
+  if (n) { clearPressInfo(); greetNPC(n); return; }
 
   const gx = Math.floor(w.x / TILE);
   const gy = Math.floor(w.y / TILE);
-  if (gx < 0 || gx >= COLS || gy < 0 || gy >= ROWS) { closeBuildMenu(); return; }
+  if (gx < 0 || gx >= COLS || gy < 0 || gy >= ROWS) {
+    clearPressInfo();
+    closeBuildMenu();
+    return;
+  }
 
   const cell = grid[gy][gx];
 
   if (cell.b) {
+    /* 建筑：开启长按拆除检测，短按收获 */
     closeBuildMenu();
-    collectFrom(gx, gy);
+    clearPressInfo();
+
+    const targetGx = gx, targetGy = gy;
+    pressInfo = {
+      gx: targetGx, gy: targetGy,
+      startX: p.x, startY: p.y,
+      startTime: performance.now(),
+      fired: false,
+      timer: setTimeout(function () {
+        if (pressInfo && pressInfo.gx === targetGx && pressInfo.gy === targetGy && !pressInfo.fired) {
+          pressInfo.fired = true;
+          pressInfo.timer = null;
+          const cellNow = grid[targetGy] && grid[targetGy][targetGx];
+          if (cellNow && cellNow.b) {
+            try { demolishBuilding(targetGx, targetGy); } catch (err) { console.error(err); }
+          }
+        }
+      }, LONG_PRESS_MS)
+    };
     return;
   }
 
   if (cell.decor) {
+    clearPressInfo();
     closeBuildMenu();
     toast('这里被占用了');
     return;
   }
 
+  /* 空地：打开建造菜单 */
+  clearPressInfo();
   openBuildMenu(gx, gy, p.x, p.y);
+});
+
+/* 长按过程中移动则取消（避免误触） */
+canvas.addEventListener('pointermove', function (e) {
+  const p = canvasPos(e);
+  const w = screenToMap(p.x, p.y);
+  const gx = Math.floor(w.x / TILE);
+  const gy = Math.floor(w.y / TILE);
+
+  if (pressInfo && !pressInfo.fired) {
+    const dx = p.x - pressInfo.startX;
+    const dy = p.y - pressInfo.startY;
+    if (gx !== pressInfo.gx || gy !== pressInfo.gy || (dx * dx + dy * dy) > 400) {
+      if (pressInfo.timer) clearTimeout(pressInfo.timer);
+      pressInfo.timer = null;
+      pressInfo.fired = true; // 取消后续短按收取
+    }
+  }
+
+  if (gx >= 0 && gx < COLS && gy >= 0 && gy < ROWS) {
+    hoverEntity = { kind: 'cell', x: gx, y: gy };
+    canvas.style.cursor = hitNPC(w.x, w.y) ? 'pointer' : 'crosshair';
+  } else {
+    hoverEntity = null;
+  }
+});
+
+function onPointerUp() {
+  if (!pressInfo) return;
+  if (pressInfo.timer) {
+    clearTimeout(pressInfo.timer);
+    pressInfo.timer = null;
+  }
+  if (!pressInfo.fired) {
+    /* 短按：收获 */
+    const gx = pressInfo.gx, gy = pressInfo.gy;
+    pressInfo = null;
+    const cell = grid[gy] && grid[gy][gx];
+    if (cell && cell.b) collectFrom(gx, gy);
+  } else {
+    pressInfo = null;
+  }
+}
+
+window.addEventListener('pointerup', onPointerUp);
+window.addEventListener('pointercancel', function () {
+  if (pressInfo && pressInfo.timer) clearTimeout(pressInfo.timer);
+  pressInfo = null;
+});
+
+canvas.addEventListener('pointerleave', function () {
+  hoverEntity = null;
+});
+
+/* 右键：拆除 */
+canvas.addEventListener('contextmenu', function (e) {
+  e.preventDefault();
+  const p = canvasPos(e);
+  const w = screenToMap(p.x, p.y);
+  const gx = Math.floor(w.x / TILE);
+  const gy = Math.floor(w.y / TILE);
+  if (gx < 0 || gx >= COLS || gy < 0 || gy >= ROWS) return;
+  const cell = grid[gy][gx];
+  if (cell && cell.b) {
+    clearPressInfo();
+    demolishBuilding(gx, gy);
+  }
 });
 
 function collectFrom(gx, gy) {
@@ -1932,11 +2512,11 @@ function collectFrom(gx, gy) {
   if (!def) return;
 
   if (!def.prod) {
-    toast(def.name + ' · ' + def.desc);
+    toast(def.name + ' · ' + def.desc + '（长按可拆除）');
     return;
   }
   if (b.stored <= 0) {
-    toast(def.name + ' 还没有产出');
+    toast(def.name + ' 还没有产出（长按可拆除）');
     return;
   }
   const amount = b.stored;
@@ -1946,8 +2526,7 @@ function collectFrom(gx, gy) {
 
   const cx = gx * TILE + TILE / 2;
   const cy = gy * TILE + 6;
-  const iconMap = { wheat: '🌾', wood: '🪵', gold: '💰' };
-  addFloater(cx, cy, '+' + amount + ' ' + iconMap[item], '#ffe089', 15);
+  addFloater(cx, cy, '+' + amount + ' ' + ICON_MAP[item], '#ffe089', 15);
   burstAt(cx, gy * TILE + TILE / 2, item === 'gold' ? '#ffd75e' : '#c8e88a', 10, 130);
   rings.push({ x: cx, y: gy * TILE + TILE * 0.6, r: 4, max: 34, life: 0.4, color: '#ffe089' });
   sfx(item === 'gold' ? 740 : 620, 0.09, 'sine', 0.045);
@@ -1963,8 +2542,8 @@ function openBuildMenu(gx, gy, sx, sy) {
   renderBuildMenu();
   buildMenuEl.classList.add('show');
 
-  const mw = buildMenuEl.offsetWidth || 268;
-  const mh = buildMenuEl.offsetHeight || 320;
+  const mw = buildMenuEl.offsetWidth || 272;
+  const mh = buildMenuEl.offsetHeight || 380;
   let left = sx - mw / 2;
   let top = sy - mh - 16;
 
@@ -1996,12 +2575,11 @@ function renderBuildMenu() {
     card.className = 'bcard' + (ok ? '' : ' locked');
 
     const costParts = [];
-    const iconMap = { gold: '💰', wood: '🪵', wheat: '🌾' };
     for (const k in cost) {
       const need = cost[k];
       const has = resources[k];
       const cls = has >= need ? '' : 'no';
-      costParts.push('<span class="' + cls + '">' + iconMap[k] + need + '</span>');
+      costParts.push('<span class="' + cls + '">' + ICON_MAP[k] + need + '</span>');
     }
 
     card.innerHTML =
@@ -2036,21 +2614,6 @@ window.addEventListener('pointerdown', function (e) {
   closeBuildMenu();
 }, true);
 
-canvas.addEventListener('pointermove', function (e) {
-  const p = canvasPos(e);
-  const w = screenToMap(p.x, p.y);
-  const gx = Math.floor(w.x / TILE);
-  const gy = Math.floor(w.y / TILE);
-  if (gx >= 0 && gx < COLS && gy >= 0 && gy < ROWS) {
-    hoverEntity = { kind: 'cell', x: gx, y: gy };
-    canvas.style.cursor = hitNPC(w.x, w.y) ? 'pointer' : 'crosshair';
-  } else {
-    hoverEntity = null;
-  }
-});
-canvas.addEventListener('pointerleave', function () { hoverEntity = null; });
-canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
-
 /* ---------- toast ---------- */
 const toastEl = document.getElementById('toast');
 let toastTimer = 0;
@@ -2060,11 +2623,11 @@ function toast(msg, isErr) {
   toastEl.classList.toggle('err', !!isErr);
   toastEl.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 1500);
+  toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 1600);
 }
 
 /* ============================================================
-   18. 管理面板（安全渲染）
+   18. 管理面板
    ============================================================ */
 const managePanel = document.getElementById('managePanel');
 const mpBody = document.getElementById('mpBody');
@@ -2126,6 +2689,10 @@ function renderOverview() {
     const vt = VOL_TYPES[volunteers[i].type];
     if (vt) wageTotal += vt.wage;
   }
+  const isBuyout = settings.volunteerMode === 'buyout';
+  const payText = isBuyout
+    ? '买断制 · 无需工资'
+    : '工资合计 ' + wageTotal + ' 💰 / ' + WAGE_PERIOD + '秒';
 
   let html = '';
   html += '<div class="mp-sec-title">小镇概况</div>';
@@ -2139,10 +2706,10 @@ function renderOverview() {
   html += '<div class="mp-sec-title">运营状态</div>';
   html += '<div class="mp-row"><span class="mi">👷</span><div class="minfo">' +
           '<div class="mn">志愿者 ' + volunteers.length + ' 人</div>' +
-          '<div class="ms">工资合计 ' + wageTotal + ' 💰 / ' + WAGE_PERIOD + '秒</div></div></div>';
+          '<div class="ms">' + payText + '</div></div></div>';
   html += '<div class="mp-row"><span class="mi">📦</span><div class="minfo">' +
           '<div class="mn">待收取产出</div>' +
-          '<div class="ms">' + totalStored + ' 单位库存</div></div></div>';
+          '<div class="ms">' + totalStored + ' 单位库存 · 仓库加成 +' + (warehouses * 2) + '</div></div></div>';
   html += '<div class="mp-row"><span class="mi">⏱️</span><div class="minfo">' +
           '<div class="mn">游戏时间</div>' +
           '<div class="ms">' + Math.floor(time) + ' 秒 · 产出倍率 ' + settings.prodSpeedMult.toFixed(1) + 'x</div></div></div>';
@@ -2155,21 +2722,22 @@ function renderOverview() {
   const btnCollect = document.getElementById('mpCollectAll');
   if (btnCollect) {
     btnCollect.addEventListener('click', function () {
-      let total = { gold: 0, wheat: 0, wood: 0 };
+      const total = { gold: 0, wheat: 0, wood: 0, ore: 0 };
       let count = 0;
       for (let y = 0; y < ROWS; y++) {
         for (let x = 0; x < COLS; x++) {
           const b = grid[y][x].b;
-          if (!b || !BTYPES[b.type] || !BTYPES[b.type].prod || b.stored <= 0) continue;
-          const item = BTYPES[b.type].prod.item;
-          const amt = b.stored;   // 先记录数量！
+          if (!b) continue;
+          const def = BTYPES[b.type];
+          if (!def || !def.prod || b.stored <= 0) continue;
+          const item = def.prod.item;
+          const amt = b.stored;
           total[item] += amt;
           addResource(item, amt);
           b.stored = 0;
           count++;
           const cx = x * TILE + TILE / 2, cy = y * TILE + 8;
-          const iconMap = { wheat: '🌾', wood: '🪵', gold: '💰' };
-          addFloater(cx, cy, '+' + amt + ' ' + iconMap[item], '#ffe089', 13);
+          addFloater(cx, cy, '+' + amt + ' ' + ICON_MAP[item], '#ffe089', 13);
         }
       }
       if (count === 0) { toast('暂时没有可收取的产出'); return; }
@@ -2177,6 +2745,7 @@ function renderOverview() {
       if (total.gold) parts.push('💰' + total.gold);
       if (total.wheat) parts.push('🌾' + total.wheat);
       if (total.wood) parts.push('🪵' + total.wood);
+      if (total.ore) parts.push('🪨' + total.ore);
       toast('收取完成：' + parts.join(' '));
       sfx(760, 0.12, 'sine', 0.05);
       renderManagePanel();
@@ -2197,44 +2766,63 @@ function renderBuildingList() {
     for (let x = 0; x < COLS; x++) {
       const b = grid[y][x].b;
       if (!b) continue;
-      count++;
       const def = BTYPES[b.type];
       if (!def) continue;
+      count++;
       let sub = def.desc;
       let full = false;
       let canTake = false;
       if (def.prod) {
-        const iconMap = { wheat: '🌾', wood: '🪵', gold: '💰' };
-        sub = iconMap[def.prod.item] + ' ' + b.stored + ' / ' + def.prod.cap;
-        full = b.stored >= def.prod.cap;
+        const cap = prodCap(b);
+        sub = ICON_MAP[def.prod.item] + ' ' + Math.floor(b.stored) + ' / ' + cap;
+        full = b.stored >= cap;
         canTake = b.stored > 0;
       }
       html += '<div class="mp-row">' +
               '<span class="mi">' + def.icon + '</span>' +
-              '<div class="minfo"><div class="mn">' + def.name + ' <span style="color:rgba(160,195,215,.45);font-weight:400;font-size:10.5px">(' + x + ',' + y + ')</span></div>' +
+              '<div class="minfo"><div class="mn">' + def.name +
+              ' <span style="color:rgba(160,195,215,.45);font-weight:400;font-size:10.5px">(' + x + ',' + y + ')</span></div>' +
               '<div class="ms' + (full ? ' full' : '') + '">' + sub + '</div></div>' +
+              '<div class="mp-btngroup">' +
               '<button class="mp-mini" data-take="' + x + ',' + y + '"' + (canTake ? '' : ' disabled') + '>收取</button>' +
-              '</div>';
+              '<button class="mp-mini danger" data-demolish="' + x + ',' + y + '">拆除</button>' +
+              '</div></div>';
     }
   }
 
   if (count === 0) {
     html += '<div class="mp-empty">还没有任何建筑<br>点击地图上的空地开始建造吧</div>';
+  } else {
+    html += '<div class="mp-empty" style="padding-top:14px;font-size:11px">' +
+            '提示：长按地图上的建筑或右键点击也能拆除<br>拆除会返还约 ' +
+            Math.round(REFUND_RATE * 100) + '% 的建造资源' +
+            '</div>';
   }
 
   mpBody.innerHTML = html;
 
-  const btns = mpBody.querySelectorAll('[data-take]');
-  for (let i = 0; i < btns.length; i++) {
-    btns[i].addEventListener('click', function () {
+  const takeBtns = mpBody.querySelectorAll('[data-take]');
+  for (let i = 0; i < takeBtns.length; i++) {
+    takeBtns[i].addEventListener('click', function () {
       const parts = this.dataset.take.split(',');
       collectFrom(parseInt(parts[0], 10), parseInt(parts[1], 10));
       renderManagePanel();
     });
   }
+
+  const demoBtns = mpBody.querySelectorAll('[data-demolish]');
+  for (let i = 0; i < demoBtns.length; i++) {
+    demoBtns[i].addEventListener('click', function () {
+      const parts = this.dataset.demolish.split(',');
+      if (demolishBuilding(parseInt(parts[0], 10), parseInt(parts[1], 10))) {
+        renderManagePanel();
+      }
+    });
+  }
 }
 
 function renderVolunteerList() {
+  const isBuyout = settings.volunteerMode === 'buyout';
   let html = '';
 
   html += '<div class="mp-sec-title">我的志愿者 (' + volunteers.length + ')</div>';
@@ -2246,32 +2834,41 @@ function renderVolunteerList() {
       const v = volunteers[i];
       const vt = VOL_TYPES[v.type];
       if (!vt) continue;
-      const nextPay = Math.max(0, Math.ceil(v.payTimer));
+      const payLine = isBuyout
+        ? '买断制 · 无需工资'
+        : '工资 ' + vt.wage + '💰 / ' + WAGE_PERIOD + '秒 · ' + Math.max(0, Math.ceil(v.payTimer)) + '秒后结算';
       html += '<div class="mp-row">' +
               '<span class="mi">' + vt.icon + '</span>' +
               '<div class="minfo"><div class="mn">' + vt.name + '</div>' +
-              '<div class="ms">工资 ' + vt.wage + '💰 / ' + WAGE_PERIOD + '秒 · ' + nextPay + '秒后结算</div></div>' +
+              '<div class="ms">' + payLine + '</div></div>' +
               '<button class="mp-mini danger" data-fire="' + i + '">解雇</button>' +
               '</div>';
     }
   }
 
-  html += '<div class="mp-sec-title">可招募</div>';
+  html += '<div class="mp-sec-title">可招募 · ' + (isBuyout ? '买断制' : '工资制') + '</div>';
 
   for (let i = 0; i < VOL_ORDER.length; i++) {
     const key = VOL_ORDER[i];
     const vt = VOL_TYPES[key];
-    const can = resources.gold >= vt.hire;
+    const cost = volHireCost(vt);
+    const can = resources.gold >= cost;
+    const btnText = isBuyout ? '买断 ' + cost + '💰' : '招募 ' + cost + '💰';
+    const subText = isBuyout
+      ? vt.desc + ' · 永久雇佣'
+      : vt.desc + ' · 工资 ' + vt.wage + '/' + WAGE_PERIOD + 's';
     html += '<div class="mp-row">' +
             '<span class="mi">' + vt.icon + '</span>' +
             '<div class="minfo"><div class="mn">' + vt.name + '</div>' +
-            '<div class="ms">' + vt.desc + '</div></div>' +
-            '<button class="mp-mini ' + (can ? 'gold' : '') + '" data-hire="' + key + '"' + (can ? '' : ' disabled') + '>招募 ' + vt.hire + '💰</button>' +
+            '<div class="ms">' + subText + '</div></div>' +
+            '<button class="mp-mini ' + (can ? 'gold' : '') + '" data-hire="' + key + '"' + (can ? '' : ' disabled') + '>' + btnText + '</button>' +
             '</div>';
   }
 
   html += '<div class="mp-empty" style="padding-top:14px;font-size:11px">' +
-          '志愿者每 ' + WAGE_PERIOD + ' 秒自动结算一次工资<br>金币不足时会离开小镇' +
+          (isBuyout
+            ? '买断制：一次性付清 ' + BUYOUT_MULT + ' 倍招募价，之后永不发工资<br>可在设置中切换薪资模式'
+            : '志愿者每 ' + WAGE_PERIOD + ' 秒自动结算一次工资<br>金币不足时会离开小镇 · 可在设置中切换买断制') +
           '</div>';
 
   mpBody.innerHTML = html;
@@ -2303,6 +2900,34 @@ const vStartGold = document.getElementById('vStartGold');
 const vCostMult = document.getElementById('vCostMult');
 const vProdMult = document.getElementById('vProdMult');
 const vNpcMult = document.getElementById('vNpcMult');
+const volModeSwitch = document.getElementById('volModeSwitch');
+const volModeHint = document.getElementById('volModeHint');
+const volModeBtns = volModeSwitch ? volModeSwitch.querySelectorAll('button') : [];
+
+const HINT_WAGE = '每 ' + WAGE_PERIOD + ' 秒支付一次工资，金币不足时志愿者会离开。';
+const HINT_BUYOUT = '招募时一次性付清 ' + BUYOUT_MULT + ' 倍价格，之后永不发工资。';
+
+function setModeUI(mode) {
+  for (let i = 0; i < volModeBtns.length; i++) {
+    volModeBtns[i].classList.toggle('active', volModeBtns[i].dataset.mode === mode);
+  }
+  if (volModeHint) {
+    volModeHint.textContent = mode === 'buyout' ? HINT_BUYOUT : HINT_WAGE;
+  }
+}
+
+function getModeUI() {
+  for (let i = 0; i < volModeBtns.length; i++) {
+    if (volModeBtns[i].classList.contains('active')) return volModeBtns[i].dataset.mode;
+  }
+  return settings.volunteerMode;
+}
+
+for (let i = 0; i < volModeBtns.length; i++) {
+  volModeBtns[i].addEventListener('click', function () {
+    setModeUI(this.dataset.mode);
+  });
+}
 
 function syncSettingsUI() {
   if (setStartGold) setStartGold.value = settings.startGold;
@@ -2313,6 +2938,7 @@ function syncSettingsUI() {
   if (vCostMult) vCostMult.textContent = settings.costMult.toFixed(1) + 'x';
   if (vProdMult) vProdMult.textContent = settings.prodSpeedMult.toFixed(1) + 'x';
   if (vNpcMult) vNpcMult.textContent = settings.npcSpeedMult.toFixed(1) + 'x';
+  setModeUI(settings.volunteerMode);
 }
 syncSettingsUI();
 
@@ -2337,12 +2963,29 @@ if (settingsModal) {
   });
 }
 
-document.getElementById('btnApplySettings').addEventListener('click', function () {
+function readSettingsFromUI() {
+  const newMode = getModeUI();
+  const modeChanged = newMode !== settings.volunteerMode;
+
   settings.startGold = parseInt(setStartGold.value, 10) || 320;
   settings.costMult = parseFloat(setCostMult.value) || 1;
   settings.prodSpeedMult = parseFloat(setProdMult.value) || 1;
   settings.npcSpeedMult = parseFloat(setNpcMult.value) || 1;
+  settings.volunteerMode = newMode;
   persistSettings();
+
+  if (modeChanged) {
+    if (settings.volunteerMode === 'wage') {
+      for (let i = 0; i < volunteers.length; i++) {
+        volunteers[i].payTimer = WAGE_PERIOD;
+      }
+    }
+    toast(settings.volunteerMode === 'buyout' ? '已切换到买断制' : '已切换到工资制');
+  }
+}
+
+document.getElementById('btnApplySettings').addEventListener('click', function () {
+  readSettingsFromUI();
 
   if (buildMenuEl.classList.contains('show')) renderBuildMenu();
   refreshManageIfOpen();
@@ -2353,12 +2996,7 @@ document.getElementById('btnApplySettings').addEventListener('click', function (
 
 document.getElementById('btnResetTown').addEventListener('click', function () {
   if (!confirm('确定要重置小镇吗？当前进度将被清空。')) return;
-  settings.startGold = parseInt(setStartGold.value, 10) || 320;
-  settings.costMult = parseFloat(setCostMult.value) || 1;
-  settings.prodSpeedMult = parseFloat(setProdMult.value) || 1;
-  settings.npcSpeedMult = parseFloat(setNpcMult.value) || 1;
-  persistSettings();
-
+  readSettingsFromUI();
   resetGame();
   saveGame(true);
   closeSettings();
@@ -2366,9 +3004,12 @@ document.getElementById('btnResetTown').addEventListener('click', function () {
 });
 
 /* ============================================================
-   20. 存档系统（安全 localStorage）
+   20. 存档系统
    ============================================================ */
-function bRound(n) { return Math.round(n * 100) / 100; }
+function bRound(n) {
+  const v = Number(n);
+  return Number.isFinite(v) ? Math.round(v * 100) / 100 : 0;
+}
 
 function serializeWorld() {
   const gridData = [];
@@ -2388,15 +3029,17 @@ function serializeWorld() {
   }
 
   return {
-    v: 2,
+    v: 3,
     time: bRound(time),
     resources: {
       gold: Math.floor(resources.gold),
       wheat: Math.floor(resources.wheat),
-      wood: Math.floor(resources.wood)
+      wood: Math.floor(resources.wood),
+      ore: Math.floor(resources.ore)
     },
     houses: houses,
     fountains: fountains,
+    warehouses: warehouses,
     totalGoldEarned: Math.floor(totalGoldEarned),
     settings: Object.assign({}, settings),
     grid: gridData,
@@ -2411,7 +3054,7 @@ function saveGame(silent) {
   if (ok) {
     if (!silent) toast('进度已保存 💾');
   } else {
-    if (!silent) toast('保存失败：存储空间不足', true);
+    if (!silent) toast('保存失败：浏览器存储不可用', true);
   }
   return ok;
 }
@@ -2421,19 +3064,22 @@ function loadGame() {
     const raw = safeGetItem(SAVE_KEY);
     if (!raw) { toast('没有找到存档', true); return false; }
     const d = JSON.parse(raw);
-    if (!d || (d.v !== 1 && d.v !== 2)) { toast('存档版本不兼容', true); return false; }
+    if (!d || typeof d.v !== 'number') { toast('存档格式无效', true); return false; }
 
     resources.gold = (d.resources && d.resources.gold) || 0;
     resources.wheat = (d.resources && d.resources.wheat) || 0;
     resources.wood = (d.resources && d.resources.wood) || 0;
+    resources.ore = (d.resources && d.resources.ore) || 0;
     houses = d.houses || 0;
     fountains = d.fountains || 0;
+    warehouses = d.warehouses || 0;
     totalGoldEarned = d.totalGoldEarned || 0;
     time = d.time || 0;
     dayPhase = (Math.sin(time * 0.045 - Math.PI / 2) + 1) / 2;
 
     if (d.settings) {
       settings = Object.assign({}, DEFAULT_SETTINGS, d.settings);
+      if (settings.volunteerMode !== 'buyout') settings.volunteerMode = 'wage';
       persistSettings();
       syncSettingsUI();
     }
@@ -2461,6 +3107,16 @@ function loadGame() {
       }
     }
 
+    if (!d.warehouses) {
+      warehouses = 0;
+      for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) {
+          const b = grid[y][x].b;
+          if (b && b.type === 'warehouse') warehouses++;
+        }
+      }
+    }
+
     volunteers = [];
     const vd = d.volunteers || [];
     for (let i = 0; i < vd.length; i++) {
@@ -2485,6 +3141,7 @@ function loadGame() {
     rings = [];
     autoSaveTimer = 0;
     lastVolCount = -1;
+    pressInfo = null;
 
     updateVolDot();
     refreshManageIfOpen();
@@ -2523,7 +3180,7 @@ function loop(now) {
 }
 
 /* ============================================================
-   22. 启动（全面容错）
+   22. 启动
    ============================================================ */
 function boot() {
   if (!canvas || !ctx) {
@@ -2534,10 +3191,7 @@ function boot() {
   resize();
   window.addEventListener('resize', resize);
 
-  // 安全读取存档状态
-  let hasSave = false;
-  try { hasSave = !!safeGetItem(SAVE_KEY); } catch (e) { hasSave = false; }
-
+  const hasSave = !!safeGetItem(SAVE_KEY);
   if (hasSave) {
     let ok = false;
     try { ok = loadGame(); } catch (e) { ok = false; }
@@ -2549,12 +3203,12 @@ function boot() {
   setTimeout(function () {
     const tipEl = document.getElementById('tip');
     if (tipEl) tipEl.innerHTML =
-      '开局建议：先建 <b>麦田</b> 和 <b>伐木场</b>，攒材料后开 <b>面包坊</b> 🍞';
+      '开局建议：先建 <b>麦田</b> 与 <b>伐木场</b>，攒够材料后开 <b>矿场</b> 和 <b>面包坊</b> 🍞';
   }, 3000);
   setTimeout(function () {
     const tipEl = document.getElementById('tip');
     if (tipEl) tipEl.innerHTML =
-      '点击 <b>空地</b> 建造 · 点击 <b>建筑</b> 收获 · 点击 <b>居民</b> 打招呼 · 右侧 📋 管理小镇';
+      '点击 <b>空地</b> 建造 · 点击 <b>建筑</b> 收获 · <b>长按</b>或<b>右键</b>建筑拆除 · 📋 管理小镇';
   }, 11000);
 
   lastTime = 0;
